@@ -12,6 +12,8 @@ var __connected_ft = (function(){
 	var deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
 	localStorage.setItem('device_id', deviceID);
 
+	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
+
 	var elements = {
 		subscribeBtn : document.querySelector('button.subscribeBtn'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
@@ -30,7 +32,11 @@ var __connected_ft = (function(){
 
 	}
 
-	function createCard(data){
+	function createCard(data, animate){
+
+		if(animate === undefined || animate === null){
+			animate = true;
+		}
 
 		var time = new Date();
 
@@ -44,7 +50,9 @@ var __connected_ft = (function(){
 		timeReceieved.classList.add('timeReceived');
 		contentContainer.classList.add('content');
 
-		itemContainer.dataset.collapsed = "true";
+		if(animate){
+			itemContainer.dataset.collapsed = "true";
+		}
 
 		timeReceieved.textContent = zeroPad( time.getHours() ) + ":" + zeroPad( time.getMinutes() );
 		itemContainer.appendChild(timeReceieved);
@@ -173,6 +181,30 @@ var __connected_ft = (function(){
 		});
 	}
 
+	function addCard(data, animate){
+
+		if(animate === undefined || animate === null){
+			animate = true;
+		}
+
+		var newCard = createCard(data, animate);
+
+		elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
+
+		existingCards.push(data);
+
+		localStorage.setItem('cards', JSON.stringify(existingCards));
+
+		if(animate){
+
+			setTimeout(function(){
+				document.querySelectorAll('.streamitem')[0].dataset.collapsed = 'false';
+			}, 50);
+
+		}
+
+	}
+
 	function bindEvents(){
 
 		elements.subscribeBtn.addEventListener('click', function(){
@@ -203,13 +235,9 @@ var __connected_ft = (function(){
 				url : 'https://www.ft.com/content/14b558da-284c-11e7-bc4b-5528796fe35c'
 			});*/
 
-			var newCard = createCard(JSON.parse(event.data));
+			var data = JSON.parse(event.data);
 
-			elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
-
-			setTimeout(function(){
-				document.querySelectorAll('.streamitem')[0].dataset.collapsed = 'false';
-			}, 50);
+			addCard(data);
 
 		});
 
@@ -218,6 +246,12 @@ var __connected_ft = (function(){
 	function initialise(){
 
 		bindEvents();
+
+		existingCards.forEach(function(card){
+
+			addCard(card, false);
+
+		});
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
