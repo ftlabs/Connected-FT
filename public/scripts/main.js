@@ -226,30 +226,13 @@ var __connected_ft = (function(){
 						// elements.triggerBtn.dataset.visible = 'true';
 						appSubscription = pushSubscription;
 						elements.deviceID.textContent = deviceID;
+						registerDevice(pushSubscription);
 					}
 
 				})
 			;
 			
 		});
-
-		/*setInterval(function(){
-
-			var newCard = createCard({
-				headline : 'Euro and French stocks surge on expectation Macron beats Le Pen',
-				byline : "Centrist’s likely success in head-to-head for French presidency eases investor nerves",
-				imagesrc : "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fprod-upp-image-read.ft.com%2F5d033616-2856-11e7-bc4b-5528796fe35c?source=next&fit=scale-down&compression=best&width=750",
-				url : 'https://www.ft.com/content/14b558da-284c-11e7-bc4b-5528796fe35c'
-			});
-
-			elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
-
-			setTimeout(function(){
-				document.querySelectorAll('.streamitem')[0].dataset.collapsed = 'false';
-			}, 50);
-
-
-		}, 5000);*/
 
 	}
 
