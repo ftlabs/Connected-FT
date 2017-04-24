@@ -37,6 +37,18 @@ header{
   border-bottom: 1px solid #dacbb8;
 }
 
+.deviceID{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  background: #777777;
+  box-shadow: 0 0 5px black;
+  height: 40px;
+}
+
 .subscribeBtn{
   margin-top: 1em;
   font-size: 1em;
