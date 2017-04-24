@@ -37,6 +37,16 @@ header{
   border-bottom: 1px solid #dacbb8;
 }
 
+.subscribeBtn{
+  margin-top: 1em;
+  font-size: 1em;
+  color: white;
+  border: 1px solid white;
+  background: transparent;
+  border-radius: 3px;
+  padding: 0.8em 1em;
+}
+
 .stream{
   width: 100%;
   padding: 1em;
