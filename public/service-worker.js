@@ -3,10 +3,14 @@
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
-  var title = 'Push Notification';
-  var body = 'We have received a push message.';
+  var data = event.data.json()
+
+  var title = data.notification.title;
+  var body = data.notification.body;
   var icon = '/images/ftlogo.png';
   var tag = 'simple-push-demo-notification-tag';
+
+  console.log(event.data.json())
 
   event.waitUntil(
     self.registration.showNotification(title, {
@@ -38,4 +42,10 @@ self.addEventListener('notificationclick', function(event) {
       return clients.openWindow('/');
     }
   }));
+});
+
+self.addEventListener('install', function(event) {
+
+	console.log('Service worker installed');
+
 });

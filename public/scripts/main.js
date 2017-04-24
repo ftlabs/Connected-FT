@@ -2,7 +2,7 @@ var __connected_ft = (function(){
 
 	'use strict';
 
-	var API_KEY = 'AAAARkLBNBk:APA91bFKrf-HAIZx7uVPP2fEOwLkoGi_EWpjuo9i-yMqg5Ub8Dg3p0MafUtloIvXDpZAJ48ZpftalWrPF7GgjebKYJf7zNiOmnu78CpTAXn2pdIEZ1oTd4JZnAibNarHOB_UNm1qOFGK';
+	var API_KEY = 'AAAARkLBNBk:APA91bG-5SRR12484VbE3rNlR1Xr2N0OunZNhq9YFpn38s_8mpXnqpCoTUc9MqF_qgrFitrc-pQox8pMb4C6RPprEp2KiAH7L3ET2los9em7n-6-hgAbjUOtpqudkrSvfzDFtw3tmJZh';
 	var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 
 	var isPushEnabled = false;
@@ -29,6 +29,20 @@ var __connected_ft = (function(){
 		console.log(curlCommand);
 	}
 
+	function triggerNotification(sub){
+
+		fetch('/trigger', {
+				method : 'POST',
+				headers : {
+					'Content-Type' : 'application/json'
+				},
+				body : JSON.stringify(sub)
+			})
+			.then(res => res.json())
+			.then(d => console.log(d));
+
+	}
+
 	function subscribe() {
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
@@ -41,6 +55,8 @@ var __connected_ft = (function(){
 					console.log(subscription);
 
 					showCurlCommand(subscription.endpoint);
+
+					triggerNotification(subscription);
 
 					// TODO: Send the subscription subscription.endpoint
 					// to your server and save it to send a push message
