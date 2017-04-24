@@ -2,9 +2,6 @@ var __connected_ft = (function(){
 
 	'use strict';
 
-	var API_KEY = '/* @echo GCM_KEY */';
-	var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
-
 	var isPushEnabled = false;
 
 	var appSubscription = undefined;
