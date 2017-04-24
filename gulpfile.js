@@ -17,7 +17,7 @@ console.log(envVars);
 gulp.task('buildApp', () => {
     return gulp.src('./client/scripts/main.js')
         .pipe(babel({ presets: ['es2015'] }))
-		.pipe( process( { context : { GCM_KEY : envVars.GCM_API_KEY } } ) )
+		.pipe( process( { context : {  } } ) )
         .pipe(gulp.dest('./public/scripts/'))
 	;
 });
