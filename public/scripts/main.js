@@ -20,6 +20,16 @@ var __connected_ft = (function(){
 		titleBar : document.querySelector('header')
 	};
 	
+	function zeroPad(n){
+
+		if(n < 10){
+			return '0' + n;
+		} else {
+			return n;
+		}
+
+	}
+
 	function createCard(data){
 
 		var time = new Date();
@@ -36,7 +46,7 @@ var __connected_ft = (function(){
 
 		itemContainer.dataset.collapsed = "true";
 
-		timeReceieved.textContent = time.getHours() + ":" + time.getMinutes();
+		timeReceieved.textContent = zeroPad( time.getHours() ) + ":" + zeroPad( time.getMinutes() );
 		itemContainer.appendChild(timeReceieved);
 
 		var headline = document.createElement('strong');
