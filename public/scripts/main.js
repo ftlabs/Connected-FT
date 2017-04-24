@@ -15,8 +15,57 @@ var __connected_ft = (function(){
 	var elements = {
 		subscribeBtn : document.querySelector('button.subscribeBtn'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
-		deviceID : document.querySelector('.deviceID')
+		deviceID : document.querySelector('.deviceID'),
+		stream : document.querySelector('.stream'),
+		titleBar : document.querySelector('header')
 	};
+	
+	function createCard(data){
+
+		var time = new Date();
+
+		var docFrag = document.createDocumentFragment();
+		
+		var itemContainer = document.createElement('div');
+		var timeReceieved = document.createElement('span');
+		var contentContainer = document.createElement('div');
+
+		itemContainer.classList.add('streamitem');
+		timeReceieved.classList.add('timeReceived');
+		contentContainer.classList.add('content');
+
+		itemContainer.dataset.collapsed = "true";
+
+		timeReceieved.textContent = time.getHours() + ":" + time.getMinutes();
+		itemContainer.appendChild(timeReceieved);
+
+		var headline = document.createElement('strong');
+		var byline = document.createElement('span');
+		var image = document.createElement('img');
+		var link = document.createElement('a');
+
+		headline.textContent = data.headline;
+		byline.textContent = data.byline;
+		image.src = data.imagesrc;
+		link.href = data.url;
+		link.target = '_blank';
+		link.textContent = 'Read now';
+
+		contentContainer.appendChild(headline);
+		contentContainer.appendChild(byline);
+		
+		if(data.imagesrc !== undefined){
+			contentContainer.appendChild(image);
+		}
+
+		contentContainer.appendChild(link);
+		itemContainer.appendChild(contentContainer);
+
+		docFrag.appendChild(itemContainer);
+
+		return docFrag;
+
+	}
 
 	function registerDevice(subscription){
 
@@ -98,7 +147,10 @@ var __connected_ft = (function(){
 					console.log('Unsubscribed');
 					elements.subscribeBtn.dataset.visible = 'true';
 					localStorage.clear();
+					deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
+					localStorage.setItem('device_id', deviceID);
 					elements.deviceID.textContent = '';
+					window.location.reload();
 				})
 				.catch(function(e) {
 					console.log('Unsubscription error: ', e);
@@ -123,6 +175,32 @@ var __connected_ft = (function(){
 				console.log('ESC pressed. Unsubscribing');
 				unsubscribe();
 			}
+		});
+
+		elements.titleBar.addEventListener('click', function(){
+
+			unsubscribe();
+
+		}, false);
+
+		navigator.serviceWorker.addEventListener('message', function(event){
+			console.log("Client 1 Received Message: " + event.data);
+
+			/*var newCard = createCard({
+				headline : 'Euro and French stocks surge on expectation Macron beats Le Pen',
+				byline : "Centrist’s likely success in head-to-head for French presidency eases investor nerves",
+				imagesrc : "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fprod-upp-image-read.ft.com%2F5d033616-2856-11e7-bc4b-5528796fe35c?source=next&fit=scale-down&compression=best&width=750",
+				url : 'https://www.ft.com/content/14b558da-284c-11e7-bc4b-5528796fe35c'
+			});*/
+
+			var newCard = createCard(JSON.parse(event.data));
+
+			elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
+
+			setTimeout(function(){
+				document.querySelectorAll('.streamitem')[0].dataset.collapsed = 'false';
+			}, 50);
+
 		});
 
 	}
@@ -154,6 +232,24 @@ var __connected_ft = (function(){
 			;
 			
 		});
+
+		/*setInterval(function(){
+
+			var newCard = createCard({
+				headline : 'Euro and French stocks surge on expectation Macron beats Le Pen',
+				byline : "Centrist’s likely success in head-to-head for French presidency eases investor nerves",
+				imagesrc : "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fprod-upp-image-read.ft.com%2F5d033616-2856-11e7-bc4b-5528796fe35c?source=next&fit=scale-down&compression=best&width=750",
+				url : 'https://www.ft.com/content/14b558da-284c-11e7-bc4b-5528796fe35c'
+			});
+
+			elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
+
+			setTimeout(function(){
+				document.querySelectorAll('.streamitem')[0].dataset.collapsed = 'false';
+			}, 50);
+
+
+		}, 5000);*/
 
 	}
 

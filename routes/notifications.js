@@ -16,28 +16,15 @@ webPush.setVapidDetails(
 const devices = {};
 
 router.post('/register', (req, res) => {
-
+  
+  console.log(req.body);
   const data = req.body;
   devices[data.id] = data.subscription;
-
   res.end();
 
 })
 
 router.post('/trigger/:DEVICE_ID', (req, res) => {
-
-  /*const subscription = req.body;
-
-  console.log(subscription);
-  
-  webPush.sendNotification(subscription, JSON.stringify({"notification" : {
-      "body" : "Server-side body",
-      "title" : "Connected FT",
-    } } ));
-
-  res.json({
-    message : "Got it"
-  });*/
 
   const deviceToTarget = req.params.DEVICE_ID;
   const data = req.body;
