@@ -42,6 +42,10 @@ header{
   padding: 1em;
   height: auto;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .stream .streamitem{
@@ -52,12 +56,15 @@ header{
   border-bottom: 1px solid grey;
   padding-bottom: 1em;
   overflow: hidden;
-  transition: 0.5s ease-in-out max-height;
-  max-height: 100vh;
+  transition: 0.3s ease-in-out max-height;
+  max-height: 1000vh;
+  max-width: 700px;
 }
 
 .stream .streamitem[data-collapsed="true"]{
   max-height: 0;
+  padding: 0;
+  border: 0;
 }
 
 .stream .streamitem .timeReceived{
@@ -95,7 +102,12 @@ header{
 }
 
 .stream .streamitem .content a{
-  color: #26747a;
   font-size: 1.2em;
   text-decoration: none;
+  text-align: center;
+  background-color: #26747a;
+  color: white;
+  padding: 0.5em 1em;
+  max-width: 300px;
+  align-self: center;
 }
