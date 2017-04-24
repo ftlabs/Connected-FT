@@ -2,7 +2,7 @@ var __connected_ft = (function(){
 
 	'use strict';
 
-	var API_KEY = 'AAAARkLBNBk:APA91bG-5SRR12484VbE3rNlR1Xr2N0OunZNhq9YFpn38s_8mpXnqpCoTUc9MqF_qgrFitrc-pQox8pMb4C6RPprEp2KiAH7L3ET2los9em7n-6-hgAbjUOtpqudkrSvfzDFtw3tmJZh';
+	var API_KEY = '/* @echo GCM_KEY */';
 	var GCM_ENDPOINT = 'https://android.googleapis.com/gcm/send';
 
 	var isPushEnabled = false;
@@ -248,9 +248,7 @@ var __connected_ft = (function(){
 		bindEvents();
 
 		existingCards.forEach(function(card){
-
 			addCard(card, false);
-
 		});
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
