@@ -12,10 +12,21 @@ webPush.setVapidDetails(
   vapidKeys.publicKey,
   vapidKeys.privateKey
 );
-/* GET home page. */
-router.post('/', function(req, res, next) {
 
-  const subscription = req.body;
+const devices = {};
+
+router.post('/register', (req, res) => {
+
+  const data = req.body;
+  devices[data.id] = data.subscription;
+
+  res.end();
+
+})
+
+router.post('/trigger/:DEVICE_ID', (req, res) => {
+
+  /*const subscription = req.body;
 
   console.log(subscription);
   
@@ -26,8 +37,16 @@ router.post('/', function(req, res, next) {
 
   res.json({
     message : "Got it"
-  });
+  });*/
+
+  const deviceToTarget = req.params.DEVICE_ID;
+  const data = req.body;
+  webPush.sendNotification(devices[deviceToTarget], JSON.stringify(data) );
+
+  res.end();
 
 });
+
+
 
 module.exports = router;

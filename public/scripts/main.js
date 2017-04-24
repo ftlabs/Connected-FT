@@ -7,39 +7,40 @@ var __connected_ft = (function(){
 
 	var isPushEnabled = false;
 
+	var appSubscription = undefined;
+
+	var deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
+	localStorage.setItem('device_id', deviceID);
+
 	var elements = {
-		subscribeBtn : document.querySelector('button.subscribeBtn')
+		subscribeBtn : document.querySelector('button.subscribeBtn'),
+		triggerBtn : document.querySelector('button.triggerBtn'),
+		deviceID : document.querySelector('.deviceID')
 	};
 
-	function showCurlCommand(mergedEndpoint) {
-		// The curl command to trigger a push message straight from GCM
-		if (mergedEndpoint.indexOf(GCM_ENDPOINT) !== 0) {
-			window.Demo.debug.log('This browser isn\'t currently ' +
-				'supported for this demo');
-			return;
-		}
+	function registerDevice(subscription){
 
-		var endpointSections = mergedEndpoint.split('/');
-		var subscriptionId = endpointSections[endpointSections.length - 1];
+		subscription = subscription || appSubscription;
 
-		var curlCommand = 'curl --header "Authorization: key=' + API_KEY +
-			'" --header Content-Type:"application/json" ' + GCM_ENDPOINT +
-			' -d "{\\"registration_ids\\":[\\"' + subscriptionId + '\\"]}"';
-
-		console.log(curlCommand);
-	}
-
-	function triggerNotification(sub){
-
-		fetch('/trigger', {
+		fetch('/notifications/register', {
 				method : 'POST',
 				headers : {
 					'Content-Type' : 'application/json'
 				},
-				body : JSON.stringify(sub)
+				body : JSON.stringify({
+					id : deviceID,
+					subscription : subscription
+				})
 			})
-			.then(res => res.json())
-			.then(d => console.log(d));
+			.then(res => {
+				if(!res.ok){
+					throw res
+				}
+			})
+			.catch(err => {
+				console.log('Registration error', err);
+			})
+		;
 
 	}
 
@@ -51,17 +52,16 @@ var __connected_ft = (function(){
 				.then(function(subscription) {
 					// The subscription was successful
 					isPushEnabled = true;
+					appSubscription = subscription;
 
 					console.log(subscription);
 
-					showCurlCommand(subscription.endpoint);
-
-					triggerNotification(subscription);
-
-					// TODO: Send the subscription subscription.endpoint
-					// to your server and save it to send a push message
-					// at a later date
-					// return sendSubscriptionToServer(subscription);
+					// triggerNotification(subscription);
+					elements.subscribeBtn.dataset.visible = 'false';
+					
+					registerDevice(subscription);
+					elements.deviceID.textContent = deviceID;
+					
 				})
 				.catch(function(e) {
 					if (Notification.permission === 'denied') {
@@ -85,13 +85,45 @@ var __connected_ft = (function(){
 
 	}
 
+	function unsubscribe() {
+
+		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+			// To unsubscribe from push messaging, you need get the
+			// subcription object, which you can call unsubscribe() on.
+			serviceWorkerRegistration.pushManager.getSubscription().then(
+			function(pushSubscription) {
+				// We have a subcription, so call unsubscribe on it
+				pushSubscription.unsubscribe()
+				.then(function() {
+					console.log('Unsubscribed');
+					elements.subscribeBtn.dataset.visible = 'true';
+					localStorage.clear();
+					elements.deviceID.textContent = '';
+				})
+				.catch(function(e) {
+					console.log('Unsubscription error: ', e);
+				});
+			})
+			.catch(function(e) {
+				console.log('Error thrown while unsubscribing from ' +
+				'push messaging.', e);
+			});
+		});
+	}
+
 	function bindEvents(){
 
 		elements.subscribeBtn.addEventListener('click', function(){
-
 			subscribe();
-
 		}, false);
+
+		window.addEventListener('keyup', function(e){
+			console.log(e);
+			if(e.keyCode === 27){
+				console.log('ESC pressed. Unsubscribing');
+				unsubscribe();
+			}
+		});
 
 	}
 
@@ -109,9 +141,13 @@ var __connected_ft = (function(){
 					if(!pushSubscription){
 						console.log("We're not subscribed to push notifications");
 						isPushEnabled = false;
+						elements.subscribeBtn.dataset.visible = 'true';
 					} else {
 						console.log("We're subscribed for push notifications");
-						isPushEnabled = true;						
+						isPushEnabled = true;
+						// elements.triggerBtn.dataset.visible = 'true';
+						appSubscription = pushSubscription;
+						elements.deviceID.textContent = deviceID;
 					}
 
 				})

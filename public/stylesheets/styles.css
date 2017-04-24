@@ -1,8 +1,37 @@
+*[data-visible="false"]{
+  display: none;
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    padding: 50px 0 0 0;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background: #333;
+    color: white;
+    display: flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
 }
 
 a {
   color: #00B7FF;
+}
+
+header{
+  background: #FFF1E0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 50px;
+  background-image: url('https://www.ft.com/__origami/service/image/v2/images/raw/fticon%3Abrand-ft-masthead?url=fticon%253Abrand-ft-masthead&source=ftlabs-connected-ft&fit=cover&format=auto&quality=medium');
+  background-size: auto 30%;
+  background-repeat: no-repeat;
+  background-position: 50%;
+  z-index: 50;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dacbb8;
 }

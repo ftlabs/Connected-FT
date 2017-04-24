@@ -3,7 +3,7 @@
 self.addEventListener('push', function(event) {
   console.log('Received a push message', event);
 
-  var data = event.data.json()
+  var data = event.data.json();
 
   var title = data.notification.title;
   var body = data.notification.body;
