@@ -1,0 +1,11 @@
+{
+  "name": "Connected FT",
+  "short_name": "Connected FT",
+  "icons": [{
+        "src": "images/ftlogo.png",
+        "sizes": "200x200"
+      }],
+  "start_url": "./index.html?homescreen=1",
+  "display": "standalone",
+  "gcm_sender_id": "301767668761"
+}

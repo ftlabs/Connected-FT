@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Connected FT</title>
+		<link rel='stylesheet' href='/stylesheets/styles.css' />
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
+		<link rel="manifest" href="manifest.json">
+	</head>
+
+	<body>
+
+		<button class="subscribeBtn">Subscribe to push notifications</button>
+
+		<script src="/scripts/main.js"></script>
+		<script>
+
+			if ('serviceWorker' in navigator) {
+				
+				navigator.serviceWorker.register('./service-worker.js')
+					.then(function(e){
+						console.log('Service worker registered', e);
+						__connected_ft.init();
+					})
+				;
+
+			} else {
+				alert('This browser does not support service workers. This demo cannot run.');
+			}
+
+		</script>
+	</body>
+
+</html>
