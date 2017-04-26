@@ -244,8 +244,12 @@ var __connected_ft = (function(){
 
 		bindEvents();
 
-		existingCards.forEach(function(card){
-			addCard(card, false);
+		existingCards.forEach(function(card, idx){
+
+			if(idx < 10){
+				addCard(card, false);
+			}
+
 		});
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
