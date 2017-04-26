@@ -58,22 +58,14 @@ self.addEventListener('notificationclick', function(event) {
   // See: http://crbug.com/463146
   event.notification.close();
 
-  var data = payloads[event.notification.tag];
-
   // This looks to see if the current is already open and
   // focuses if it is
   event.waitUntil(clients.matchAll({
 		type: 'window'
 	})
 	.then(function(clientList) {
-		for (var i = 0; i < clientList.length; i++) {
-			var client = clientList[i];
-			if (client.url === '/' && 'focus' in client) {
-				return client.focus();
-			}
-		}
 		if (clients.openWindow) {
-			return clients.openWindow('/');
+			return clients.openWindow(event.notification.tag);
 		}
 	}))
   ;
