@@ -1,3 +1,4 @@
+const debug = require('debug')('routes:notifications');
 const express = require('express');
 const router = express.Router();
 
@@ -15,19 +16,13 @@ webPush.setVapidDetails(
 
 const devices = {};
 
-router.post('/register', (req, res) => {
-  
-  console.log(req.body);
-  const data = req.body;
-  devices[data.id] = data.subscription;
-  res.end();
-
-});
-
 router.post('/trigger/:DEVICE_ID', (req, res) => {
 
   const deviceToTarget = req.params.DEVICE_ID;
   const data = req.body;
+
+  debug(devices[deviceToTarget]);
+
   webPush.sendNotification(devices[deviceToTarget], JSON.stringify(data) );
 
   res.end();

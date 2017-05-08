@@ -14,7 +14,6 @@ var __connected_ft = (function(){
 	var elements = {
 		subscribeBtn : document.querySelector('button.subscribeBtn'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
-		deviceID : document.querySelector('.deviceID'),
 		stream : document.querySelector('.stream'),
 		titleBar : document.querySelector('header')
 	};
@@ -86,11 +85,12 @@ var __connected_ft = (function(){
 
 		subscription = subscription || appSubscription;
 
-		fetch('/notifications/register', {
+		return fetch('/devices/register', {
 				method : 'POST',
 				headers : {
 					'Content-Type' : 'application/json'
 				},
+				credentials : 'include',
 				body : JSON.stringify({
 					id : deviceID,
 					subscription : subscription
@@ -99,6 +99,8 @@ var __connected_ft = (function(){
 			.then(res => {
 				if(!res.ok){
 					throw res
+				} else {
+					return res.json();
 				}
 			})
 			.catch(err => {
@@ -123,8 +125,11 @@ var __connected_ft = (function(){
 					// triggerNotification(subscription);
 					elements.subscribeBtn.dataset.visible = 'false';
 					
-					registerDevice(subscription);
-					elements.deviceID.textContent = deviceID;
+					registerDevice(subscription)
+						.then(function(response){
+							console.log('Subscription response', response);
+						})
+					;
 					
 				})
 				.catch(function(e) {
@@ -268,8 +273,6 @@ var __connected_ft = (function(){
 						isPushEnabled = true;
 						// elements.triggerBtn.dataset.visible = 'true';
 						appSubscription = pushSubscription;
-						elements.deviceID.textContent = deviceID;
-						registerDevice(pushSubscription);
 					}
 
 				})

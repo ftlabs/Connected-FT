@@ -28,15 +28,16 @@ function updateDeviceDetails(deviceID, details){
 
 function getAllDevicesForUser(userID){
 
-	database.query({
-			KeyConditionExpression: '#userid = :userid',
+	database.scan({
+			FilterExpression : '#userid = :userid',			
 			ExpressionAttributeNames:{
 				'#userid': 'userid'
 			},
 			ExpressionAttributeValues: {
 				':userid' : userID
-			}
-		}, process.env.DEVICE_TABLE)
+			},
+			TableName : process.env.DEVICE_TABLE
+		})
 		.then(data => {
 			return data.Items;
 		})
