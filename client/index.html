@@ -12,7 +12,12 @@
 
 		<header></header>
 
-		<button class="subscribeBtn" data-visible="false">Register Device</button>
+		<form id="registerDevice" data-visible='false'>
+			<label for="devicename">Name your device</label>
+			<input type="text" name="devicename" placeholder="My Phone"/>
+			<input type="submit" class="subscribeBtn" value="Register Device" />
+		</form>
+
 		<div class="stream">
 
 			<!--<div class="streamitem" data-collapsed="false">

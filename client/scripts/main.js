@@ -12,7 +12,7 @@ var __connected_ft = (function(){
 	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
 	var elements = {
-		subscribeBtn : document.querySelector('button.subscribeBtn'),
+		subscribeForm : document.querySelector('form#registerDevice'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
 		stream : document.querySelector('.stream'),
 		titleBar : document.querySelector('header')
@@ -81,7 +81,7 @@ var __connected_ft = (function(){
 
 	}
 
-	function registerDevice(subscription){
+	function registerDevice(subscription, name){
 
 		subscription = subscription || appSubscription;
 
@@ -93,7 +93,8 @@ var __connected_ft = (function(){
 				credentials : 'include',
 				body : JSON.stringify({
 					id : deviceID,
-					subscription : subscription
+					subscription : subscription,
+					name : name
 				})
 			})
 			.then(res => {
@@ -110,7 +111,7 @@ var __connected_ft = (function(){
 
 	}
 
-	function subscribe() {
+	function subscribe(name) {
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
@@ -119,13 +120,11 @@ var __connected_ft = (function(){
 					// The subscription was successful
 					isPushEnabled = true;
 					appSubscription = subscription;
-
-					console.log(subscription);
-
-					// triggerNotification(subscription);
-					elements.subscribeBtn.dataset.visible = 'false';
+					elements.subscribeForm.dataset.visible = false;
 					
-					registerDevice(subscription)
+					console.log(subscription);
+					
+					registerDevice(subscription, name)
 						.then(function(response){
 							console.log('Subscription response', response);
 						})
@@ -139,13 +138,14 @@ var __connected_ft = (function(){
 						// to manually change the notification permission to
 						// subscribe to push messages
 						console.log('Permission for Notifications was denied');
-						elements.subscribeBtn.disabled = true;
+						elements.subscribeForm.dataset.visible = true;
 					} else {
 						// A problem occurred with the subscription, this can
 						// often be down to an issue or lack of the gcm_sender_id
 						// and / or gcm_user_visible_only
 						console.log('Unable to subscribe to push.', e);
-						elements.subscribeBtn.disabled = false;
+						elements.subscribeForm.dataset.visible = true;
+						
 					}
 				})
 			;
@@ -165,11 +165,10 @@ var __connected_ft = (function(){
 				pushSubscription.unsubscribe()
 				.then(function() {
 					console.log('Unsubscribed');
-					elements.subscribeBtn.dataset.visible = 'true';
+					elements.subscribeForm.dataset.visible = 'true';
 					localStorage.clear();
 					deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
 					localStorage.setItem('device_id', deviceID);
-					elements.deviceID.textContent = '';
 					window.location.reload();
 				})
 				.catch(function(e) {
@@ -209,8 +208,9 @@ var __connected_ft = (function(){
 
 	function bindEvents(){
 
-		elements.subscribeBtn.addEventListener('click', function(){
-			subscribe();
+		elements.subscribeForm.addEventListener('submit', function(e){
+			e.preventDefault();
+			subscribe(this[0].value);
 		}, false);
 
 		window.addEventListener('keyup', function(e){
@@ -267,11 +267,12 @@ var __connected_ft = (function(){
 					if(!pushSubscription){
 						console.log("We're not subscribed to push notifications");
 						isPushEnabled = false;
-						elements.subscribeBtn.dataset.visible = 'true';
+						elements.subscribeForm.dataset.visible = 'true';
 					} else {
 						console.log("We're subscribed for push notifications");
 						isPushEnabled = true;
 						// elements.triggerBtn.dataset.visible = 'true';
+						elements.subscribeForm.dataset.visible = 'false';
 						appSubscription = pushSubscription;
 					}
 
