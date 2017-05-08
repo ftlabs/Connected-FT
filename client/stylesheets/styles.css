@@ -1,5 +1,5 @@
 *[data-visible="false"]{
-  display: none;
+  display: none !important;
 }
 
 body {
@@ -169,4 +169,34 @@ form input[type="text"]{
   padding: 0.5em 1em;
   max-width: 300px;
   align-self: center;
+}
+
+#overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: rgba(0,0,0,0.85);
+  width: 100%;
+  height: 100%;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2em;
+  box-sizing: border-box;
+}
+
+#overlay #message{
+  max-width: 400px;
+}
+
+#overlay button{
+  color: white;
+  border: 1px solid white;
+  font-size: 1em;
+  font-weight: 100;
+  background: transparent;
+  border-radius: 5px;
+  padding: 0.5em 1em 0.5em;
+  width: 100%;
 }

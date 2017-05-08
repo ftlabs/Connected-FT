@@ -15,7 +15,8 @@ var __connected_ft = (function(){
 		subscribeForm : document.querySelector('form#registerDevice'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
 		stream : document.querySelector('.stream'),
-		titleBar : document.querySelector('header')
+		titleBar : document.querySelector('header'),
+		overlay : document.querySelector('#overlay')
 	};
 	
 	function zeroPad(n){
@@ -27,6 +28,44 @@ var __connected_ft = (function(){
 		}
 
 	}
+
+	var overlay = (function(){
+
+		var overlayElement = elements.overlay;
+
+		function setOverlayMessage(title, message, buttonText){
+			
+			if(title){
+				overlayElement.querySelector('h3').textContent = title;
+			}
+
+			if(message){
+				overlayElement.querySelector('p').textContent = message;
+			}
+
+			if(buttonText){
+				overlayElement.querySelector('button').textContent = buttonText;
+			}
+
+		}
+		
+		function showOverlay(){
+			overlayElement.dataset.visible = 'true';
+		}
+
+		function hideOverlay(){
+			overlayElement.dataset.visible = 'false';
+		}
+
+		overlayElement.querySelector('button').addEventListener('click', hideOverlay, false);
+
+		return {
+			set : setOverlayMessage,
+			show : showOverlay,
+			hide : hideOverlay
+		};
+
+	}());
 
 	function createCard(data, animate){
 
@@ -138,12 +177,16 @@ var __connected_ft = (function(){
 						// to manually change the notification permission to
 						// subscribe to push messages
 						console.log('Permission for Notifications was denied');
+						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+						overlay.show();
 						elements.subscribeForm.dataset.visible = true;
 					} else {
 						// A problem occurred with the subscription, this can
 						// often be down to an issue or lack of the gcm_sender_id
 						// and / or gcm_user_visible_only
 						console.log('Unable to subscribe to push.', e);
+						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+						overlay.show();
 						elements.subscribeForm.dataset.visible = true;
 						
 					}
