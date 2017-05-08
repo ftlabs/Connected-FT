@@ -28,7 +28,7 @@ function updateDeviceDetails(deviceID, details){
 
 function getAllDevicesForUser(userID){
 
-	database.scan({
+	return database.scan({
 			FilterExpression : '#userid = :userid',			
 			ExpressionAttributeNames:{
 				'#userid': 'userid'
@@ -39,7 +39,14 @@ function getAllDevicesForUser(userID){
 			TableName : process.env.DEVICE_TABLE
 		})
 		.then(data => {
-			return data.Items;
+			return data.Items.map(entry => {
+
+				return {
+					name : entry.name,
+					deviceid : entry.deviceid
+				};
+
+			});
 		})
 		.catch(err => {
 			debug(err);
@@ -49,25 +56,16 @@ function getAllDevicesForUser(userID){
 
 }
 
-function getDetailsForSpecificDeviceForUser(userID, deviceID){
+function getDetailsForSpecificDevice(deviceID){
 
-	database.query({
-			KeyConditionExpression: '#userid = :userid and #deviceid = :deviceid',
-			ExpressionAttributeNames:{
-				'#userid': 'userid',
-				'#deviceid' : 'deviceid'
-			},
-			ExpressionAttributeValues: {
-				':userid' : userID,
-				':deviceid' : deviceID
-			}
-		}, process.env.DEVICE_TABLE)
+	return database.read({ deviceid : deviceID }, process.env.DEVICE_TABLE)
 		.then(data => {
-			return data.Items;
+			debug(data);
+			return data.Item;
 		})
 		.catch(err => {
 			debug(err);
-			throw `An error occurred as we tried to get the devices for user ${userID}`;
+			throw `An error occurred as we tried to get the device ${deviceID}`;
 		})
 	;
 
@@ -77,5 +75,5 @@ module.exports = {
 	create : createANewDevice,
 	update : updateDeviceDetails,
 	list : getAllDevicesForUser,
-	get : getDetailsForSpecificDeviceForUser
+	get : getDetailsForSpecificDevice
 };

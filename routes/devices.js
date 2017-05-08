@@ -10,8 +10,17 @@ router.use(convertSessionToUserID);
 router.get('/list', (req, res) => {
 
 	debug(res.locals.userid);
-	devices.list(res.locals.userid);
-	res.end();
+	devices.list(res.locals.userid)
+		.then(devices => {
+			debug(devices);
+			res.json({
+				devices
+			});
+		})
+		.catch(err => {
+			debug(err);
+		})
+	;
 
 });
 
