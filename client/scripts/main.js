@@ -6,9 +6,6 @@ var __connected_ft = (function(){
 
 	var appSubscription = undefined;
 
-	var deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
-	localStorage.setItem('device_id', deviceID);
-
 	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
 	var elements = {
@@ -16,7 +13,8 @@ var __connected_ft = (function(){
 		triggerBtn : document.querySelector('button.triggerBtn'),
 		stream : document.querySelector('.stream'),
 		titleBar : document.querySelector('header'),
-		overlay : document.querySelector('#overlay')
+		overlay : document.querySelector('#overlay'),
+		noitems : document.querySelector('p.noitems'),
 	};
 	
 	function zeroPad(n){
@@ -131,7 +129,6 @@ var __connected_ft = (function(){
 				},
 				credentials : 'include',
 				body : JSON.stringify({
-					id : deviceID,
 					subscription : subscription,
 					name : name
 				})
@@ -210,8 +207,6 @@ var __connected_ft = (function(){
 					console.log('Unsubscribed');
 					elements.subscribeForm.dataset.visible = 'true';
 					localStorage.clear();
-					deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
-					localStorage.setItem('device_id', deviceID);
 					window.location.reload();
 				})
 				.catch(function(e) {
@@ -225,10 +220,14 @@ var __connected_ft = (function(){
 		});
 	}
 
-	function addCard(data, animate){
+	function addCard(data, animate, save){
 
 		if(animate === undefined || animate === null){
 			animate = true;
+		}
+
+		if(save === undefined || save === null){
+			save = true;
 		}
 
 		var newCard = createCard(data, animate);
@@ -237,7 +236,11 @@ var __connected_ft = (function(){
 
 		existingCards.push(data);
 
-		localStorage.setItem('cards', JSON.stringify(existingCards));
+		if(save){
+			localStorage.setItem('cards', JSON.stringify(existingCards));
+		}
+		
+		elements.noitems.dataset.visible = 'false';
 
 		if(animate){
 
@@ -292,13 +295,19 @@ var __connected_ft = (function(){
 
 		bindEvents();
 
-		existingCards.forEach(function(card, idx){
+		if(existingCards.length > 0){
 
-			if(idx < 10){
-				addCard(card, false);
-			}
+			elements.stream.innerHTML = '';
+			existingCards.forEach(function(card, idx){
 
-		});
+				if(idx < 10){
+					addCard(card, false, false);
+				}
+
+			});
+
+		}
+
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
