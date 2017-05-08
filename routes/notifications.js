@@ -22,7 +22,7 @@ router.post('/register', (req, res) => {
   devices[data.id] = data.subscription;
   res.end();
 
-})
+});
 
 router.post('/trigger/:DEVICE_ID', (req, res) => {
 
