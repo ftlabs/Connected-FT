@@ -34,6 +34,11 @@ function validateSessionFromToken(sessionToken, isSecure) {
 		throw 'A token was not defined for the Membership Session API'
 	}
 
+	if(sessionToken === undefined){
+		debug('>>>>>>>> NO SESSION TOKEN <<<<<<<<');
+		return Promise.resolve();
+	}
+
 	const urlSecure = isSecure ? 's/' : '';
 
 	return fetch(`${membershipAPIURL}/sessions/${urlSecure}${sessionToken}`, {

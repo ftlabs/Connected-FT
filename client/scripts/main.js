@@ -157,6 +157,7 @@ var __connected_ft = (function(){
 					isPushEnabled = true;
 					appSubscription = subscription;
 					elements.subscribeForm.dataset.visible = false;
+					elements.stream.dataset.visible = true;
 					
 					console.log(subscription);
 					
@@ -295,43 +296,61 @@ var __connected_ft = (function(){
 
 		bindEvents();
 
-		if(existingCards.length > 0){
-
-			elements.stream.innerHTML = '';
-			existingCards.forEach(function(card, idx){
-
-				if(idx < 10){
-					addCard(card, false, false);
-				}
-
-			});
-
-		}
-
-
-		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
-
-			serviceWorkerRegistration.pushManager.getSubscription()
-				.then(function(pushSubscription){
-					
-					console.log(pushSubscription);
-
-					if(!pushSubscription){
-						console.log("We're not subscribed to push notifications");
-						isPushEnabled = false;
-						elements.subscribeForm.dataset.visible = 'true';
-					} else {
-						console.log("We're subscribed for push notifications");
-						isPushEnabled = true;
-						// elements.triggerBtn.dataset.visible = 'true';
-						elements.subscribeForm.dataset.visible = 'false';
-						appSubscription = pushSubscription;
+		fetch('/isloggedin', {
+				credentials : 'include'
+			})
+			.then(function(res){
+				if(res.status !== 200){
+					if(res.status === 401){
+						alert('User is not logged in to FT.com');
 					}
+				} else {
+					return res.json();
+				}
+			})
+			.then(function(){
 
-				})
-			;
-			
-		});
+				navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
+
+					serviceWorkerRegistration.pushManager.getSubscription()
+						.then(function(pushSubscription){
+							
+							console.log(pushSubscription);
+
+							if(!pushSubscription){
+								console.log("We're not subscribed to push notifications");
+								isPushEnabled = false;
+								elements.subscribeForm.dataset.visible = 'true';
+								elements.stream.dataset.visible = 'false';
+							} else {
+								console.log("We're subscribed for push notifications");
+								isPushEnabled = true;
+								elements.stream.dataset.visible = 'true';
+								elements.subscribeForm.dataset.visible = 'false';
+								appSubscription = pushSubscription;
+								
+								if(existingCards.length > 0){
+
+									elements.stream.innerHTML = '';
+									existingCards.forEach(function(card, idx){
+
+										if(idx < 10){
+											addCard(card, false, false);
+										}
+
+									});
+
+								}
+							}
+
+						})
+					;
+					
+				});
+
+			})
+		;
+
 
 	}
 

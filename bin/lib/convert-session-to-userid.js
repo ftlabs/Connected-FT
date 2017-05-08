@@ -7,10 +7,15 @@ module.exports = function(req, res, next){
 		.then(uuid => {
 			debug(uuid);
 			if(uuid === undefined){
-				throw 'There is no uuid in the response from the membership API';
+				res.status(401);
+				res.json({
+					status : 'err',
+					message : 'The user is not logged in.'
+				});
+			} else {
+				res.locals.userid = uuid;
+				next();
 			}
-			res.locals.userid = uuid;
-			next();
 		})
 		.catch(err => {
 			debug(err);
