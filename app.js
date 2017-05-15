@@ -23,11 +23,16 @@ app.use(function(req, res, next) {
 
   debug('ORIGIN', req.get('origin'));
 
-  if(req.get('origin').indexOf('ft.com') > -1){
-    res.header("Access-Control-Allow-Origin", req.get('origin'));
-    res.header("Access-Control-Allow-Credentials", 'true');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  if(req.get('origin') !== undefined){
+
+    if(req.get('origin').indexOf('ft.com') > -1){
+      res.header("Access-Control-Allow-Origin", req.get('origin'));
+      res.header("Access-Control-Allow-Credentials", 'true');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    }
+
   }
+  
   next();
 });
 
