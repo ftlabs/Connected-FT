@@ -15,6 +15,7 @@ var __connected_ft = (function(){
 		titleBar : document.querySelector('header'),
 		overlay : document.querySelector('#overlay'),
 		noitems : document.querySelector('p.noitems'),
+		login : document.querySelector('.login')
 	};
 	
 	function zeroPad(n){
@@ -292,15 +293,13 @@ var __connected_ft = (function(){
 			})
 			.then(function(res){
 				if(res.status !== 200){
-					if(res.status === 401){
-						alert('User is not logged in to FT.com');
-					}
+					throw res.status;
 				} else {
 					return res.json();
 				}
 			})
 			.then(function(){
-
+				elements.login.dataset.visible = "false";
 				navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
 					serviceWorkerRegistration.pushManager.getSubscription()
@@ -339,6 +338,9 @@ var __connected_ft = (function(){
 					
 				});
 
+			})
+			.catch(err => {
+				console.log(err);
 			})
 		;
 
