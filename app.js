@@ -1,3 +1,4 @@
+const debug = require('debug')('ftlabs-connected:app');
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -19,6 +20,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
+  debug('HOSTNAME:', req.hostname);
   if (req.hostname.endsWith('ft.com')) {
     res.header("Access-Control-Allow-Origin", 'http://' + req.hostname);
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
