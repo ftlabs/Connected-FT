@@ -73,7 +73,7 @@ form p strong{
   color: white;
 }
 
-form input[type="text"]{
+form input[type="text"], form select{
   width: 100%;
   padding: 1em;
   box-sizing: border-box;
@@ -84,6 +84,10 @@ form input[type="text"]{
   font-weight: 600;
 }
 
+form select{
+  height: 50px;
+  border-radius: 0;
+}
 
 .subscribeBtn{
   margin-top: 1em;

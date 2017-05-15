@@ -29,6 +29,8 @@ router.post('/register', (req, res) => {
 	const details = req.body;
 	details.userid = res.locals.userid;
 
+	debug(req.body);
+
 	devices.create(details)
 		.then(storedDetails => {
 			res.json({
@@ -46,26 +48,6 @@ router.post('/register', (req, res) => {
 		})
 	;
 
-
-});
-
-router.get('/details/:UUID', (req, res) => {
-
-	devices.get(req.params.UUID, res.locals.userid)
-		.then(device => {
-			
-			if(device === undefined){
-				res.status(404);
-				res.json({
-					status : 'err',
-					message : 'Unable to find details for that device ID'
-				});
-			} else {
-				res.json(device);
-			}
-
-		})
-	;
 
 });
 

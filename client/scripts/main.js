@@ -118,7 +118,7 @@ var __connected_ft = (function(){
 
 	}
 
-	function registerDevice(subscription, name){
+	function registerDevice(subscription, name, type){
 
 		subscription = subscription || appSubscription;
 
@@ -130,7 +130,8 @@ var __connected_ft = (function(){
 				credentials : 'include',
 				body : JSON.stringify({
 					subscription : subscription,
-					name : name
+					name : name,
+					type : type
 				})
 			})
 			.then(res => {
@@ -147,7 +148,7 @@ var __connected_ft = (function(){
 
 	}
 
-	function subscribe(name) {
+	function subscribe(name, type) {
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
@@ -161,7 +162,7 @@ var __connected_ft = (function(){
 					
 					console.log(subscription);
 					
-					registerDevice(subscription, name)
+					registerDevice(subscription, name, type)
 						.then(function(response){
 							console.log('Subscription response', response);
 						})
@@ -257,21 +258,11 @@ var __connected_ft = (function(){
 
 		elements.subscribeForm.addEventListener('submit', function(e){
 			e.preventDefault();
-			subscribe(this[0].value);
+			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value);
 		}, false);
 
-		window.addEventListener('keyup', function(e){
-			console.log(e);
-			if(e.keyCode === 27){
-				console.log('ESC pressed. Unsubscribing');
-				unsubscribe();
-			}
-		});
-
 		elements.titleBar.addEventListener('click', function(){
-
 			unsubscribe();
-
 		}, false);
 
 		navigator.serviceWorker.addEventListener('message', function(event){

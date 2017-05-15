@@ -6,7 +6,7 @@ const filterObject = require('./filter-object');
 
 function createANewDevice(details){
 
-	details = filterObject(details, ['name', 'subscription', 'userid']);
+	details = filterObject(details, ['name', 'subscription', 'userid', 'type']);
 	details.deviceid = uuid();
 
 	return database.write(details, process.env.DEVICE_TABLE)
@@ -55,17 +55,16 @@ function getAllDevicesForUser(userID){
 
 }
 
-function getDetailsForSpecificDevice(deviceID, userID){
+function getDetailsForSpecificDevice(deviceID){
 
-	return getAllDevicesForUser(userID)
-		.then(devices => {
-			return devices.filter(device => {
-				return device.deviceid === deviceID;
-			})[0];
+	return database.read({ deviceid : deviceID }, process.env.DEVICE_TABLE)
+		.then(data => {
+			debug(data);
+			return data.Item;
 		})
 		.catch(err => {
 			debug(err);
-			throw `An error occurred as we tried to get information about ${deviceID} the for user ${userID}`
+			throw `An error occurred as we tried to get the device ${deviceID}`;
 		})
 	;
 
