@@ -21,6 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
   debug('HOSTNAME:', req.hostname);
+  debug(req);
   if (req.hostname.endsWith('ft.com')) {
     res.header("Access-Control-Allow-Origin", 'http://' + req.hostname);
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
