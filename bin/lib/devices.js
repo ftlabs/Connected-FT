@@ -4,7 +4,6 @@ const uuid = require('uuid').v4;
 const database = require('./database');
 const filterObject = require('./filter-object');
 
-
 function createANewDevice(details){
 
 	details = filterObject(details, ['name', 'subscription', 'userid']);
@@ -56,16 +55,17 @@ function getAllDevicesForUser(userID){
 
 }
 
-function getDetailsForSpecificDevice(deviceID){
+function getDetailsForSpecificDevice(deviceID, userID){
 
-	return database.read({ deviceid : deviceID }, process.env.DEVICE_TABLE)
-		.then(data => {
-			debug(data);
-			return data.Item;
+	return getAllDevicesForUser(userID)
+		.then(devices => {
+			return devices.filter(device => {
+				return device.deviceid === deviceID;
+			})[0];
 		})
 		.catch(err => {
 			debug(err);
-			throw `An error occurred as we tried to get the device ${deviceID}`;
+			throw `An error occurred as we tried to get information about ${deviceID} the for user ${userID}`
 		})
 	;
 

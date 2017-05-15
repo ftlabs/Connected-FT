@@ -51,7 +51,21 @@ router.post('/register', (req, res) => {
 
 router.get('/details/:UUID', (req, res) => {
 
-	res.end();
+	devices.get(req.params.UUID, res.locals.userid)
+		.then(device => {
+			
+			if(device === undefined){
+				res.status(404);
+				res.json({
+					status : 'err',
+					message : 'Unable to find details for that device ID'
+				});
+			} else {
+				res.json(device);
+			}
+
+		})
+	;
 
 });
 
