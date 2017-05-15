@@ -19,7 +19,13 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('^/__reachable|/__gtg', function(req, res){ res.end();});
+app.get('/isloggedin', require('./bin/lib/convert-session-to-userid'), (req, res) => {
+  res.json({
+    userid : res.locals.userid
+  });
+});
 app.use('/notifications', require('./routes/notifications'));
+app.use('/devices', require('./routes/devices'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

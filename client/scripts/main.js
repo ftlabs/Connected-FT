@@ -6,17 +6,16 @@ var __connected_ft = (function(){
 
 	var appSubscription = undefined;
 
-	var deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
-	localStorage.setItem('device_id', deviceID);
-
 	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
 	var elements = {
-		subscribeBtn : document.querySelector('button.subscribeBtn'),
+		subscribeForm : document.querySelector('form#registerDevice'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
-		deviceID : document.querySelector('.deviceID'),
 		stream : document.querySelector('.stream'),
-		titleBar : document.querySelector('header')
+		titleBar : document.querySelector('header'),
+		overlay : document.querySelector('#overlay'),
+		noitems : document.querySelector('p.noitems'),
+		login : document.querySelector('.login')
 	};
 	
 	function zeroPad(n){
@@ -28,6 +27,44 @@ var __connected_ft = (function(){
 		}
 
 	}
+
+	var overlay = (function(){
+
+		var overlayElement = elements.overlay;
+
+		function setOverlayMessage(title, message, buttonText){
+			
+			if(title){
+				overlayElement.querySelector('h3').textContent = title;
+			}
+
+			if(message){
+				overlayElement.querySelector('p').textContent = message;
+			}
+
+			if(buttonText){
+				overlayElement.querySelector('button').textContent = buttonText;
+			}
+
+		}
+		
+		function showOverlay(){
+			overlayElement.dataset.visible = 'true';
+		}
+
+		function hideOverlay(){
+			overlayElement.dataset.visible = 'false';
+		}
+
+		overlayElement.querySelector('button').addEventListener('click', hideOverlay, false);
+
+		return {
+			set : setOverlayMessage,
+			show : showOverlay,
+			hide : hideOverlay
+		};
+
+	}());
 
 	function createCard(data, animate){
 
@@ -82,23 +119,27 @@ var __connected_ft = (function(){
 
 	}
 
-	function registerDevice(subscription){
+	function registerDevice(subscription, name, type){
 
 		subscription = subscription || appSubscription;
 
-		fetch('/notifications/register', {
+		return fetch('/devices/register', {
 				method : 'POST',
 				headers : {
 					'Content-Type' : 'application/json'
 				},
+				credentials : 'include',
 				body : JSON.stringify({
-					id : deviceID,
-					subscription : subscription
+					subscription : subscription,
+					name : name,
+					type : type
 				})
 			})
 			.then(res => {
 				if(!res.ok){
 					throw res
+				} else {
+					return res.json();
 				}
 			})
 			.catch(err => {
@@ -108,7 +149,7 @@ var __connected_ft = (function(){
 
 	}
 
-	function subscribe() {
+	function subscribe(name, type) {
 
 		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
@@ -117,14 +158,16 @@ var __connected_ft = (function(){
 					// The subscription was successful
 					isPushEnabled = true;
 					appSubscription = subscription;
-
-					console.log(subscription);
-
-					// triggerNotification(subscription);
-					elements.subscribeBtn.dataset.visible = 'false';
+					elements.subscribeForm.dataset.visible = false;
+					elements.stream.dataset.visible = true;
 					
-					registerDevice(subscription);
-					elements.deviceID.textContent = deviceID;
+					console.log(subscription);
+					
+					registerDevice(subscription, name, type)
+						.then(function(response){
+							console.log('Subscription response', response);
+						})
+					;
 					
 				})
 				.catch(function(e) {
@@ -134,13 +177,18 @@ var __connected_ft = (function(){
 						// to manually change the notification permission to
 						// subscribe to push messages
 						console.log('Permission for Notifications was denied');
-						elements.subscribeBtn.disabled = true;
+						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+						overlay.show();
+						elements.subscribeForm.dataset.visible = true;
 					} else {
 						// A problem occurred with the subscription, this can
 						// often be down to an issue or lack of the gcm_sender_id
 						// and / or gcm_user_visible_only
 						console.log('Unable to subscribe to push.', e);
-						elements.subscribeBtn.disabled = false;
+						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+						overlay.show();
+						elements.subscribeForm.dataset.visible = true;
+						
 					}
 				})
 			;
@@ -160,11 +208,8 @@ var __connected_ft = (function(){
 				pushSubscription.unsubscribe()
 				.then(function() {
 					console.log('Unsubscribed');
-					elements.subscribeBtn.dataset.visible = 'true';
+					elements.subscribeForm.dataset.visible = 'true';
 					localStorage.clear();
-					deviceID = localStorage.getItem('device_id') || Math.random() * 1000000 | 0;
-					localStorage.setItem('device_id', deviceID);
-					elements.deviceID.textContent = '';
 					window.location.reload();
 				})
 				.catch(function(e) {
@@ -178,10 +223,14 @@ var __connected_ft = (function(){
 		});
 	}
 
-	function addCard(data, animate){
+	function addCard(data, animate, save){
 
 		if(animate === undefined || animate === null){
 			animate = true;
+		}
+
+		if(save === undefined || save === null){
+			save = true;
 		}
 
 		var newCard = createCard(data, animate);
@@ -190,7 +239,11 @@ var __connected_ft = (function(){
 
 		existingCards.push(data);
 
-		localStorage.setItem('cards', JSON.stringify(existingCards));
+		if(save){
+			localStorage.setItem('cards', JSON.stringify(existingCards));
+		}
+		
+		elements.noitems.dataset.visible = 'false';
 
 		if(animate){
 
@@ -204,22 +257,13 @@ var __connected_ft = (function(){
 
 	function bindEvents(){
 
-		elements.subscribeBtn.addEventListener('click', function(){
-			subscribe();
+		elements.subscribeForm.addEventListener('submit', function(e){
+			e.preventDefault();
+			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value);
 		}, false);
 
-		window.addEventListener('keyup', function(e){
-			console.log(e);
-			if(e.keyCode === 27){
-				console.log('ESC pressed. Unsubscribing');
-				unsubscribe();
-			}
-		});
-
 		elements.titleBar.addEventListener('click', function(){
-
 			unsubscribe();
-
 		}, false);
 
 		navigator.serviceWorker.addEventListener('message', function(event){
@@ -244,38 +288,66 @@ var __connected_ft = (function(){
 
 		bindEvents();
 
-		existingCards.forEach(function(card, idx){
+		fetch('/isloggedin', {
+				credentials : 'include'
+			})
+			.then(function(res){
+				if(res.status !== 200){
+					throw res.status;
+				} else {
+					return res.json();
+				}
+			})
+			.then(function(){
+				elements.login.dataset.visible = "false";
+				navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
-			if(idx < 10){
-				addCard(card, false);
-			}
+					serviceWorkerRegistration.pushManager.getSubscription()
+						.then(function(pushSubscription){
+							
+							console.log(pushSubscription);
 
-		});
+							if(!pushSubscription){
+								console.log("We're not subscribed to push notifications");
+								isPushEnabled = false;
+								elements.subscribeForm.dataset.visible = 'true';
+								elements.stream.dataset.visible = 'false';
+							} else {
+								console.log("We're subscribed for push notifications");
+								isPushEnabled = true;
+								elements.stream.dataset.visible = 'true';
+								elements.subscribeForm.dataset.visible = 'false';
+								appSubscription = pushSubscription;
+								
+								if(existingCards.length > 0){
 
-		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
+									elements.stream.innerHTML = '';
+									existingCards.forEach(function(card, idx){
 
-			serviceWorkerRegistration.pushManager.getSubscription()
-				.then(function(pushSubscription){
+										if(idx < 10){
+											addCard(card, false, false);
+										}
+
+									});
+
+								}
+							}
+
+						})
+					;
 					
-					console.log(pushSubscription);
+				});
 
-					if(!pushSubscription){
-						console.log("We're not subscribed to push notifications");
-						isPushEnabled = false;
-						elements.subscribeBtn.dataset.visible = 'true';
-					} else {
-						console.log("We're subscribed for push notifications");
-						isPushEnabled = true;
-						// elements.triggerBtn.dataset.visible = 'true';
-						appSubscription = pushSubscription;
-						elements.deviceID.textContent = deviceID;
-						registerDevice(pushSubscription);
-					}
+			})
+			.catch(err => {
+				console.log(err);
+				switch(err){
+					case 401:
+						elements.login.dataset.visible = 'true';
+				}
+			})
+		;
 
-				})
-			;
-			
-		});
 
 	}
 

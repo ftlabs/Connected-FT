@@ -3,7 +3,7 @@
 	<head>
 		<title>Connected FT</title>
 		<link rel='stylesheet' href='/stylesheets/styles.css' />
-		<link rel="stylesheet" href="https://build.origami.ft.com/v2/bundles/css?modules=o-fonts@^2.3.0" />
+		<link rel="stylesheet" href="https://build.origami.ft.com/v2/bundles/css?modules=o-fonts@^2.3.0,o-buttons@^4.4.1" />
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 		<link rel="manifest" href="manifest.json">
 	</head>
@@ -12,11 +12,40 @@
 
 		<header></header>
 
-		<button class="subscribeBtn" data-visible="false">Register Device</button>
+		<div class="login" data-visible="false">
+			<section class="constraint">
+				<p>Welcome to Connected FT</p>
+				<p>This app is a 20% time project from FT Labs to experiment with connecting user devices to their FT accounts with push notification subscriptions.</p>
+				<p>To use this service, please login with your FT.com credentials.</p>
+				<a type="submit" href="https://accounts.ft.com/login?location=https://ftlabs-connected.ft.com" class="o-buttons o-buttons--standout o-buttons--big">Login</a>
+			</section>
+		</div>
 
-		<h1 class="deviceID"></h1>
+		<form id="registerDevice" data-visible='false'>
+			<h3>Connect this device</h3>
+			<p>By connecting this device to your FT.com account, you’ll be able to send articles from any desktop computer to your device for later reading</p>
+			<hr />
+			<label for="devicename">Name your device</label>
+			<p>The name for your device that will appear on FT.com</p>
+			<input type="text" name="devicename" placeholder="My Phone"/>
 
-		<div class="stream">
+			<p>Select the type of device this is. You can only register one device for each type. If you register a device of the same time as one already registered, this device will overwrite the pre-registered device.</p>
+			<select name="devicetype">
+				<option value="phone" selected>Phone</option> 
+				<option value="tablet">Tablet</option>
+				<option value="computer">Computer</option>
+			</select>
+
+			<h3>Enable push notifications</h3>
+			<p>This mechanism operates using the push notification functionality of your phone. To complete the registration of this device, you must enable push notifications when prompted.<p>
+			<p>Push notifications will only occur when <strong>you</strong> trigger them.</p>
+
+			<input type="submit" class="subscribeBtn" value="Register Device" />
+		</form>
+
+		<div class="stream" data-visible="false">
+
+			<p class='noitems' data-visible='true'>No articles have been sent to this device.</p>
 
 			<!--<div class="streamitem" data-collapsed="false">
 				<span class='timeReceived'>13:26</span>
@@ -28,6 +57,14 @@
 				</div>
 			</div>-->
 
+		</div>
+
+		<div id="overlay" data-visible="false">
+			<div id="message">
+				<h3>Message</h3>
+				<p></p>
+				<button>close</button>
+			</div>
 		</div>
 
 		<script src="/scripts/main.js"></script>
