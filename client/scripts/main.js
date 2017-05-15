@@ -341,6 +341,10 @@ var __connected_ft = (function(){
 			})
 			.catch(err => {
 				console.log(err);
+				switch(err){
+					case 401:
+						elements.login.dataset.visible = 'true';
+				}
 			})
 		;
 

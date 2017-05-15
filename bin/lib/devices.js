@@ -79,7 +79,6 @@ function getDetailsForSpecificDevice(deviceID){
 
 module.exports = {
 	create : createANewDevice,
-	update : updateDeviceDetails,
 	list : getAllDevicesForUser,
 	get : getDetailsForSpecificDevice
 };
