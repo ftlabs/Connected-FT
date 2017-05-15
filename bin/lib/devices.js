@@ -9,19 +9,33 @@ function createANewDevice(details){
 	details = filterObject(details, ['name', 'subscription', 'userid', 'type']);
 	details.deviceid = uuid();
 
-	return database.write(details, process.env.DEVICE_TABLE)
-		.then(function(){
-			return details;
-		})
-		.catch(err => {
-			debug(err);
-			return 'An error occurred adding this device to our database';
+	debug(details);
+
+	return getAllDevicesForUser(details.userid)
+		.then(devices => {
+
+			const existingDevice = devices.filter(device => {
+				debug(`${device.type} === ${details.type}`);
+				return device.type === details.type;
+			})[0];
+
+			if(existingDevice !== undefined){
+				details.deviceid = existingDevice.deviceid;
+			}
+
+			return database.write(details, process.env.DEVICE_TABLE)
+				.then(function(){
+					return details;
+				})
+				.catch(err => {
+					debug(err);
+					return 'An error occurred adding this device to our database';
+				})
+			;
+
 		})
 	;
 
-}
-
-function updateDeviceDetails(deviceID, details){
 
 }
 
@@ -38,14 +52,7 @@ function getAllDevicesForUser(userID){
 			TableName : process.env.DEVICE_TABLE
 		})
 		.then(data => {
-			return data.Items.map(entry => {
-
-				return {
-					name : entry.name,
-					deviceid : entry.deviceid
-				};
-
-			});
+			return data.Items;
 		})
 		.catch(err => {
 			debug(err);

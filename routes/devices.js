@@ -13,6 +13,16 @@ router.get('/list', (req, res) => {
 	devices.list(res.locals.userid)
 		.then(devices => {
 			debug(devices);
+
+			devices = devices.map(entry => {
+
+				return {
+					name : entry.name,
+					deviceid : entry.deviceid
+				};
+
+			});
+
 			res.json({
 				devices
 			});
