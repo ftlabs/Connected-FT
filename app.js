@@ -20,6 +20,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
+
+  debug('ORIGIN', req.get('origin'));
+
   res.header("Access-Control-Allow-Origin", 'https://local.ft.com:5050');
   res.header("Access-Control-Allow-Credentials", 'true');
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
