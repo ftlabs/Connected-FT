@@ -99,3 +99,38 @@ This interface is intended for use by other FT.com products which may want to tr
 }
 ```
 
+### /notifications
+
+#### [ POST ] /trigger/:DEVICE_ID
+
+This endpoint will trigger a push notification for a device with the given `DEVICE_ID`. Device IDs can be retrieved for a user with the `/devices/list` endpoint.
+
+This endpoint accepts JSON, and should have the following properties for 'Connected FT' to display the content properly.
+
+This endpoint can be triggered by anybody, but they must pass a valid device ID (which are only accessible from the authenticated `/devices` endpoints), otherwise nothing will happen.
+
+```JSON
+// https://ftlabs-connected.ft.com/notifications/trigger/c7b1e232-4825-43ab-96a4-065cf87ca8ad
+
+{
+	"headline" : "Conservatives hire Jim Messina for general election",
+	"byline" : "Data expert ran Barack Obama’s 2012 presidential campaign",
+	"imagesrc" : "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fcom.ft.imagepublish.prod.s3.amazonaws.com%2Fe5d0372c-28e3-11e7-9ec8-168383da43b7?source=next&fit=scale-down&width=700",
+	"url" : "https://www.ft.com/content/006e4a74-28df-11e7-bc4b-5528796fe35c"
+}
+```
+
+```JSON
+// Response
+{
+	"status": "ok",
+	"message": "Notification triggered for c7b1e232-4825-43ab-96a4-065cf87ca8ad"
+}
+```
+
+This will result in a notification like the following (through Chrome on an Android device)
+![screenshot_20170516-163201a](https://cloud.githubusercontent.com/assets/913687/26114964/a4bf7f70-3a56-11e7-8615-98bcd2febcfd.png)
+
+If the Connected FT PWA is open at the time, it will present in the app like so:
+
+![screenshot_20170516-163507a](https://cloud.githubusercontent.com/assets/913687/26114998/bc78405c-3a56-11e7-910b-8a20d0be5352.png)
