@@ -23,6 +23,16 @@ Typically, push notifications are used by services to alert users of something t
 
 A server with the app to register individual devices will now be running at port 4567. This can be changed by adding a `.env` file to the project directory with `PORT=[DESIRED_PORT_NUMBER]` as an entry.
 
+So far, push notifications have been observed to work on the following browsers/devices:
+
+	- macOS (10.10.5)
+		- Chrome (57.0.2987.133)
+		- Firefox (53.0.2)
+	- Android (OnePlus 2, OxygenOS 3.5.6, Android 6.0.1)
+		- Chrome (58.0.3029.83)
+		- Firefox (53.0.2)
+		- Samsung Internet Browser (5.4.00-70)
+
 ## API
 
 There are two routes that ft.com services can interact with:
