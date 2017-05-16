@@ -41,8 +41,8 @@ So far, push notifications have been observed to work on the following browsers/
 ## API
 
 There are two routes that ft.com services can interact with:
-	1. `/devices`
-	2. `/notifications`
+1. `/devices`
+2. `/notifications`
 
 The "Connected FT" progressive web app interacts with these endpoints, and is served from `/`. The code resides in the `client` folder, but is compiled, copied, and served from the `public` folder when the server is started.
 
