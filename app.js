@@ -1,3 +1,4 @@
+const debug = require('debug')('ftlabs-connected:app');
 const express = require('express');
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -19,8 +20,19 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "https://ft.com");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+  debug('ORIGIN', req.get('origin'));
+
+  if(req.get('origin') !== undefined){
+
+    if(req.get('origin').indexOf('ft.com') > -1){
+      res.header("Access-Control-Allow-Origin", req.get('origin'));
+      res.header("Access-Control-Allow-Credentials", 'true');
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    }
+
+  }
+
   next();
 });
 

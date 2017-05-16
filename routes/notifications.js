@@ -21,7 +21,7 @@ router.post('/trigger/:DEVICE_ID', (req, res) => {
 	const data = req.body;
 	const device = req.params['DEVICE_ID']
 
-	debug(data, device);
+	debug('TRIGGER', data, device);
 
 	devices.get(device)
 		.then(deviceDetails => {

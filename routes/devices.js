@@ -18,7 +18,8 @@ router.get('/list', (req, res) => {
 
 				return {
 					name : entry.name,
-					deviceid : entry.deviceid
+					deviceid : entry.deviceid,
+					type : entry.type
 				};
 
 			});
