@@ -25,7 +25,7 @@ app.use(function(req, res, next) {
 
   if(req.get('origin') !== undefined){
 
-    if(req.get('origin').endsWith('ft.com')){
+    if(req.get('origin').endsWith('.ft.com')){
       res.header("Access-Control-Allow-Origin", req.get('origin'));
       res.header("Access-Control-Allow-Credentials", 'true');
       res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
