@@ -21,6 +21,11 @@ Typically, push notifications are used by services to alert users of something t
 3. `npm install`
 4. `npm run start`
 
+## Running
+
+1. Follow the build steps above
+2. `npm run start`
+
 A server with the app to register individual devices will now be running at port 4567. This can be changed by adding a `.env` file to the project directory with `PORT=[DESIRED_PORT_NUMBER]` as an entry.
 
 So far, push notifications have been observed to work on the following browsers/devices:
