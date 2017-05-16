@@ -43,7 +43,7 @@ Accepts JSON passed in the body of the request.
 
 Parameters:
 
-```JSON
+```Javascript
 // Example:
 {
 	"name" : "Sean's Phone", // A string to name the device...
