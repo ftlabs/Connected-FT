@@ -5,6 +5,7 @@ var __connected_ft = (function(){
 	var isPushEnabled = false;
 
 	var appSubscription = undefined;
+	var deviceID = undefined;
 
 	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
@@ -306,7 +307,7 @@ var __connected_ft = (function(){
 
 					const spanA = document.createElement('a');
 
-					a.textContent = `${device.name} (${device.type})`;
+					a.textContent = `${device.name} (${ deviceID === device.deviceid ? 'this device' : device.type})`;
 					spanA.textContent = 'deregister';
 					spanA.dataset.visible = 'true';
 
@@ -352,6 +353,31 @@ var __connected_ft = (function(){
 
 	}
 
+	function findOutWhichDeviceIAm(subscription){
+		return fetch('/devices/whoami', {
+				method : 'POST',
+				credentials : 'include',
+				body : JSON.stringify({subscription : subscription}),
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			})
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(details => {
+				return details;
+			})
+			.catch(err => {
+				console.log(err);
+			})
+		;
+	}
+
 	function prepareUI(){
 
 		elements.subscribeForm.dataset.visible = false;
@@ -367,9 +393,14 @@ var __connected_ft = (function(){
 
 		}, false);
 
-		populateDrawerWithDevices()
+		findOutWhichDeviceIAm(appSubscription)
+			.then(details => {
+				deviceID = details.deviceid;
+				return populateDrawerWithDevices();
+			})
 			.then(function(){
 				elements.menu.dataset.visible = 'true';
+				console.log(deviceID);
 			})
 		;
 
