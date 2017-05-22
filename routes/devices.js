@@ -61,7 +61,7 @@ router.post('/register', (req, res) => {
 
 });
 
-router.delete('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', (req, res) => {
+router.post('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', (req, res) => {
 
 	// Get device details
 	// Check user own it
