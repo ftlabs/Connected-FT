@@ -155,47 +155,49 @@ var __connected_ft = (function(){
 
 	function subscribe(name, type) {
 
-		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
+		return new Promise( (resolve, reject) => {
 
-			serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
-				.then(function(subscription) {
-					// The subscription was successful
-					isPushEnabled = true;
-					appSubscription = subscription;
-					
-					prepareUI();
-					
-					console.log(subscription);
-					
-					registerDevice(subscription, name, type)
-						.then(function(response){
-							console.log('Subscription response', response);
-						})
-					;
-					
-				})
-				.catch(function(e) {
-					if (Notification.permission === 'denied') {
-						// The user denied the notification permission which
-						// means we failed to subscribe and the user will need
-						// to manually change the notification permission to
-						// subscribe to push messages
-						console.log('Permission for Notifications was denied');
-						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-						overlay.show();
-						elements.subscribeForm.dataset.visible = true;
-					} else {
-						// A problem occurred with the subscription, this can
-						// often be down to an issue or lack of the gcm_sender_id
-						// and / or gcm_user_visible_only
-						console.log('Unable to subscribe to push.', e);
-						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-						overlay.show();
-						elements.subscribeForm.dataset.visible = true;
+			navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
+
+				serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
+					.then(function(subscription) {
+						// The subscription was successful
+						isPushEnabled = true;
+						appSubscription = subscription;
 						
-					}
-				})
-			;
+						registerDevice(subscription, name, type)
+							.then(function(response){
+								console.log('Subscription response', response);
+								resolve(response);
+							})
+						;
+						
+					})
+					.catch(function(e) {
+						if (Notification.permission === 'denied') {
+							// The user denied the notification permission which
+							// means we failed to subscribe and the user will need
+							// to manually change the notification permission to
+							// subscribe to push messages
+							console.log('Permission for Notifications was denied');
+							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+							overlay.show();
+							elements.subscribeForm.dataset.visible = true;
+							reject();
+						} else {
+							// A problem occurred with the subscription, this can
+							// often be down to an issue or lack of the gcm_sender_id
+							// and / or gcm_user_visible_only
+							console.log('Unable to subscribe to push.', e);
+							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+							overlay.show();
+							elements.subscribeForm.dataset.visible = true;
+							reject();							
+						}
+					})
+				;
+
+			});
 
 		});
 
@@ -395,16 +397,22 @@ var __connected_ft = (function(){
 
 		findOutWhichDeviceIAm(appSubscription)
 			.then(details => {
-				deviceID = details.deviceid;
+
+				if(details === undefined){
+					unsubscribe();
+				} else {
+					deviceID = details.deviceid;
+				}
+
 				return populateDrawerWithDevices();
 			})
 			.then(function(){
 				elements.menu.dataset.visible = 'true';
 				console.log(deviceID);
+				setInterval(populateDrawerWithDevices, 10000);
 			})
 		;
 
-		setInterval(populateDrawerWithDevices, 10000);
 
 	}
 
@@ -412,7 +420,13 @@ var __connected_ft = (function(){
 
 		elements.subscribeForm.addEventListener('submit', function(e){
 			e.preventDefault();
-			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value);
+			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value)
+				.then(details => {
+					prepareUI();
+						
+					console.log(details);
+				})
+			;
 		}, false);
 
 		elements.secretUnsubscribe.addEventListener('click', function(){
