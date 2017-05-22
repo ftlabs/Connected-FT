@@ -77,6 +77,30 @@ function readFromDatabase(item, table){
 
 }
 
+function deleteItemFromDatabase(item, table){
+
+	return new Promise( (resolve, reject) => {
+
+		if(table === undefined || table === null){
+			reject(`'table' argument is ${table}`);
+		} else {
+			DynamoClient.delete({
+				TableName : table,
+				Key : item
+			}, (err, result) => {
+				if (err) {
+					reject(err);
+				}
+				else{ 
+					resolve(result);
+				}
+			});
+		}
+
+	});
+
+}
+
 function scanDatabase(query){
 	
 	debug('Scanning database', query);
@@ -160,6 +184,7 @@ function updateItemInDatabase(item, updateExpression, expressionValues, table){
 module.exports = {
 	write    : writeToDatabase,
 	read     : readFromDatabase,
+	delete   : deleteItemFromDatabase,
 	scan     : scanDatabase,
 	query    : queryItemsInDatabase,
 	update   : updateItemInDatabase,

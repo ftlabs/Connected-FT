@@ -3,14 +3,17 @@
 	<head>
 		<title>Connected FT</title>
 		<link rel='stylesheet' href='/stylesheets/styles.css' />
-		<link rel="stylesheet" href="https://build.origami.ft.com/v2/bundles/css?modules=o-fonts@^2.3.0,o-buttons@^4.4.1" />
+		<link rel="stylesheet" href="https://build.origami.ft.com/v2/bundles/css?modules=o-fonts@^2.3.0,o-buttons@^4.4.1,o-loading@^1.0.0" />
 		<meta name="viewport" content="initial-scale=1.0, user-scalable=yes" />
 		<link rel="manifest" href="manifest.json">
 	</head>
 
 	<body>
 
-		<header></header>
+		<header>
+			<div id="secretUnsub"></div>
+			<div class="component" id="menu" data-visible="false" href="#o-header-drawer"></div>
+		</header>
 
 		<div class="login view" data-visible="false">
 			<section class="constraint">
@@ -65,6 +68,11 @@
 				<p></p>
 				<button>close</button>
 			</div>
+		</div>
+
+		<div class="component" id="drawer" data-opened="false">
+			<div class="title">My Connected Devices</div>
+
 		</div>
 
 		<script src="/scripts/main.js"></script>
