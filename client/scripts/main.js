@@ -274,24 +274,9 @@ var __connected_ft = (function(){
 
 	}
 
-	function prepareUI(){
+	function populateDrawerWithDevices(){
 
-		elements.subscribeForm.dataset.visible = false;
-		elements.stream.dataset.visible = true;
-
-		elements.menu.addEventListener('click', function(){
-
-			if(elements.drawer.dataset.opened === 'false'){
-				elements.drawer.dataset.opened = 'true';
-			} else {
-				elements.drawer.dataset.opened = 'false';
-			}
-
-		}, false);
-
-		elements.menu.dataset.visible = 'true';
-
-		fetch('/devices/list', {
+		return fetch('/devices/list', {
 				credentials : 'include'
 			})
 			.then(res => {
@@ -303,6 +288,12 @@ var __connected_ft = (function(){
 			})
 			.then(data => {
 				console.log(data);
+
+				const existingDevicesList = elements.drawer.querySelector('ol');
+
+				if(existingDevicesList !== null){
+					existingDevicesList.parentNode.removeChild(existingDevicesList);
+				}
 
 				const drawerDevicesDocFrag = document.createDocumentFragment();
 				const ol = document.createElement('ol');
@@ -322,6 +313,7 @@ var __connected_ft = (function(){
 						deleteDevice(device.deviceid)
 							.then(result => {
 								console.log(result);
+								li.parentElement.removeChild(li);
 							})
 						;
 					});
@@ -347,6 +339,32 @@ var __connected_ft = (function(){
 				;
 			})
 		;
+
+	}
+
+	function prepareUI(){
+
+		elements.subscribeForm.dataset.visible = false;
+		elements.stream.dataset.visible = true;
+
+		elements.menu.addEventListener('click', function(){
+
+			if(elements.drawer.dataset.opened === 'false'){
+				elements.drawer.dataset.opened = 'true';
+			} else {
+				elements.drawer.dataset.opened = 'false';
+			}
+
+		}, false);
+
+		populateDrawerWithDevices()
+			.then(function(){
+				elements.menu.dataset.visible = 'true';
+			})
+		;
+
+		setInterval(populateDrawerWithDevices, 10000);
+
 	}
 
 	function bindEvents(){
