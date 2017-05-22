@@ -79,7 +79,7 @@ function getDetailsForSpecificDevice(deviceID){
 
 function deleteDeviceFromTables(deviceID){
 
-	return database.delete({uuid : deviceID}, process.env.DEVICE_TABLE)
+	return database.delete({deviceid : deviceID}, process.env.DEVICE_TABLE)
 		.then(data => {
 			debug(data);
 			return data;

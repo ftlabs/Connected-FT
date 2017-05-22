@@ -61,7 +61,7 @@ router.post('/register', (req, res) => {
 
 });
 
-router.post('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', (req, res) => {
+router.delete('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', (req, res) => {
 
 	// Get device details
 	// Check user own it
@@ -73,17 +73,19 @@ router.post('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]
 
 	devices.get(requestedDevice)
 		.then(device => {
-
+			debug(device);
 			if(device.userid === thisUser){
 				// Delete the device entry
 				devices.delete(requestedDevice)
 					.then(result => {
+						debug(result);
 						res.json({
 							status : 'ok',
 							message : `Device ${requestedDevice} has been sucessfully unregistered`
 						})
 					})
 					.catch(err => {
+						debug(err);
 						res.status(500);
 						res.json({
 							status : 'err',
@@ -101,8 +103,6 @@ router.post('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]
 
 		})
 	;
-
-	res.end();
 
 });
 
