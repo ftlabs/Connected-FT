@@ -304,16 +304,26 @@ var __connected_ft = (function(){
 					const a = document.createElement('a');
 					const span = document.createElement('span');
 
+					const spanA = document.createElement('a');
+
 					a.textContent = `${device.name} (${device.type})`;
-					span.textContent = 'deregister';
+					spanA.textContent = 'deregister';
+					spanA.dataset.visible = 'true';
+
+					span.innerHTML = `<div data-visible="false" class="o-loading o-loading--dark o-loading--small o-loading--smaller"></div>`;
+					span.appendChild(spanA);
 
 					span.addEventListener('click', function(){
 						console.log('DEREG');
+
+						spanA.dataset.visible = 'false';
+						span.querySelector('.o-loading').dataset.visible = 'true';
 
 						deleteDevice(device.deviceid)
 							.then(result => {
 								console.log(result);
 								li.parentElement.removeChild(li);
+								elements.drawer.dataset.opened = 'false';
 							})
 						;
 					});

@@ -175,8 +175,17 @@ a.o-buttons {
   font-size: 0.8em;
   border: 1px solid #333;
   border-radius: 3px;
-  padding: 0 0.5em 0.2em;
-  display: block;
+  padding: 0 0.5em;
+  display: flex;
+  align-items: center;
+  min-width: 56px;
+  min-height: 20px;
+  justify-content: center;
+}
+
+.o-loading--small.o-loading--smaller{
+  width: 0.5em;
+  height: 0.5em;
 }
 
 .view{
