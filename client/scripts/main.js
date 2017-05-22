@@ -15,7 +15,10 @@ var __connected_ft = (function(){
 		titleBar : document.querySelector('header'),
 		overlay : document.querySelector('#overlay'),
 		noitems : document.querySelector('p.noitems'),
-		login : document.querySelector('.login')
+		login : document.querySelector('.login'),
+		menu : document.querySelector('.component#menu'),
+		drawer : document.querySelector('.component#drawer'),
+		secretUnsubscribe : document.querySelector('#secretUnsub')
 	};
 	
 	function zeroPad(n){
@@ -158,8 +161,8 @@ var __connected_ft = (function(){
 					// The subscription was successful
 					isPushEnabled = true;
 					appSubscription = subscription;
-					elements.subscribeForm.dataset.visible = false;
-					elements.stream.dataset.visible = true;
+					
+					prepareUI();
 					
 					console.log(subscription);
 					
@@ -223,6 +226,22 @@ var __connected_ft = (function(){
 		});
 	}
 
+	function deleteDevice(deviceID){
+
+		return fetch(`/devices/unregister/${deviceID}`, {method : 'DELETE', credentials : 'include'})
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(result => {
+				console.log(result);
+			})
+		;
+	}
+
 	function addCard(data, animate, save){
 
 		if(animate === undefined || animate === null){
@@ -255,6 +274,81 @@ var __connected_ft = (function(){
 
 	}
 
+	function prepareUI(){
+
+		elements.subscribeForm.dataset.visible = false;
+		elements.stream.dataset.visible = true;
+
+		elements.menu.addEventListener('click', function(){
+
+			if(elements.drawer.dataset.opened === 'false'){
+				elements.drawer.dataset.opened = 'true';
+			} else {
+				elements.drawer.dataset.opened = 'false';
+			}
+
+		}, false);
+
+		elements.menu.dataset.visible = 'true';
+
+		fetch('/devices/list', {
+				credentials : 'include'
+			})
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(data => {
+				console.log(data);
+
+				const drawerDevicesDocFrag = document.createDocumentFragment();
+				const ol = document.createElement('ol');
+
+				data.devices.forEach(device => {
+
+					const li = document.createElement('li');
+					const a = document.createElement('a');
+					const span = document.createElement('span');
+
+					a.textContent = `${device.name} (${device.type})`;
+					span.textContent = 'deregister';
+
+					span.addEventListener('click', function(){
+						console.log('DEREG');
+
+						deleteDevice(device.deviceid)
+							.then(result => {
+								console.log(result);
+							})
+						;
+					});
+
+					li.appendChild(a);
+					li.appendChild(span);
+
+					ol.appendChild(li);
+
+				});
+
+				drawerDevicesDocFrag.appendChild(ol);
+
+				elements.drawer.appendChild(drawerDevicesDocFrag);
+
+			})
+			.catch(err => {
+				console.log(err);
+				err.text()
+					.then(t => {
+						console.log('Could not get a list of devices', t);
+					})
+				;
+			})
+		;
+	}
+
 	function bindEvents(){
 
 		elements.subscribeForm.addEventListener('submit', function(e){
@@ -262,7 +356,7 @@ var __connected_ft = (function(){
 			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value);
 		}, false);
 
-		elements.titleBar.addEventListener('click', function(){
+		elements.secretUnsubscribe.addEventListener('click', function(){
 			unsubscribe();
 		}, false);
 
@@ -315,10 +409,10 @@ var __connected_ft = (function(){
 							} else {
 								console.log("We're subscribed for push notifications");
 								isPushEnabled = true;
-								elements.stream.dataset.visible = 'true';
-								elements.subscribeForm.dataset.visible = 'false';
 								appSubscription = pushSubscription;
 								
+								prepareUI();
+
 								if(existingCards.length > 0){
 
 									elements.stream.innerHTML = '';

@@ -10,7 +10,10 @@
 
 	<body>
 
-		<header></header>
+		<header>
+			<div id="secretUnsub"></div>
+			<div class="component" id="menu" data-visible="false" href="#o-header-drawer"></div>
+		</header>
 
 		<div class="login view" data-visible="false">
 			<section class="constraint">
@@ -65,6 +68,11 @@
 				<p></p>
 				<button>close</button>
 			</div>
+		</div>
+
+		<div class="component" id="drawer" data-opened="false">
+			<div class="title">My Connected Devices</div>
+
 		</div>
 
 		<script src="/scripts/main.js"></script>

@@ -63,11 +63,6 @@ router.post('/register', (req, res) => {
 
 router.delete('/unregister/:DEVICE_ID([a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12})', (req, res) => {
 
-	// Get device details
-	// Check user own it
-	// If so, delete entry from database,
-	// Otherwise, error out.
-
 	const thisUser = res.locals.userid;
 	const requestedDevice = req.params['DEVICE_ID'];
 
