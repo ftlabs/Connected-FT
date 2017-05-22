@@ -77,8 +77,24 @@ function getDetailsForSpecificDevice(deviceID){
 
 }
 
+function deleteDeviceFromTables(deviceID){
+
+	return database.delete({uuid : deviceID}, process.env.DEVICE_TABLE)
+		.then(data => {
+			debug(data);
+			return data;
+		})
+		.catch(err => {
+			debug(err);
+			throw `An error occurred deleting device '${deviceID}' from the devices table`;
+		})
+	;
+
+}
+
 module.exports = {
 	create : createANewDevice,
 	list : getAllDevicesForUser,
-	get : getDetailsForSpecificDevice
+	get : getDetailsForSpecificDevice,
+	delete : deleteDeviceFromTables
 };
