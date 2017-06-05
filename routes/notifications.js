@@ -44,6 +44,4 @@ router.post('/trigger/:DEVICE_ID', (req, res) => {
 
 });
 
-
-
 module.exports = router;

@@ -1,6 +1,5 @@
+/* global self clients MessageChannel*/
 'use strict';
-
-var payloads = {};
 
 function send_message_to_client(client, msg){
     return new Promise(function(resolve, reject){
@@ -35,8 +34,6 @@ self.addEventListener('push', function(event) {
   var body = data.headline;
   var icon = '/images/ftlogo.png';
   var tag = data.url;
-
-  payloads[data.url] = data;
 
   console.log(event.data.json())
 
@@ -73,6 +70,6 @@ self.addEventListener('notificationclick', function(event) {
 
 self.addEventListener('install', function(event) {
 
-	console.log('Service worker installed');
+	console.log('Service worker installed', event);
 
 });
