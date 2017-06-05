@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const devices = require('../bin/lib/devices');
+const timeline = require('../bin/lib/timeline');
 
 const webPush = require('web-push');
 webPush.setGCMAPIKey(process.env.GCM_API_KEY);
@@ -25,12 +26,16 @@ router.post('/trigger/:DEVICE_ID', (req, res) => {
 
 	devices.get(device)
 		.then(deviceDetails => {
+			
 			debug(deviceDetails);
 			webPush.sendNotification(deviceDetails.subscription, JSON.stringify(data) );
 			res.json({
 				status : 'ok',
 				message : `Notification triggered for ${device}`
-			})
+			});
+			
+			timeline.add(data, deviceDetails.userid);
+
 		})
 		.catch(err => {
 			debug(err);
