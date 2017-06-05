@@ -92,9 +92,31 @@ function deleteDeviceFromTables(deviceID){
 
 }
 
+function getDetailsForSpecificDeviceBySubscription(subscription){
+	return database.scan({
+			FilterExpression : '#subscription = :subscription',			
+			ExpressionAttributeNames:{
+				'#subscription': 'subscription'
+			},
+			ExpressionAttributeValues: {
+				':subscription' : subscription
+			},
+			TableName : process.env.DEVICE_TABLE
+		})
+		.then(data => {
+			return data.Items[0];
+		})
+		.catch(err => {
+			debug(err);
+			throw `An error occurred as we tried to get a device by subscription`;
+		})
+	;
+}
+
 module.exports = {
 	create : createANewDevice,
 	list : getAllDevicesForUser,
 	get : getDetailsForSpecificDevice,
-	delete : deleteDeviceFromTables
+	delete : deleteDeviceFromTables,
+	getBySubscription : getDetailsForSpecificDeviceBySubscription
 };

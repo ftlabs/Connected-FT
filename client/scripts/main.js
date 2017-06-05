@@ -2,9 +2,9 @@
 const __connected_ft = (function(){
 
 	'use strict';
+	let appSubscription = undefined;
 
 	let resetTaps = 0;
-	let appSubscription = undefined;
 
 	const existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
@@ -180,6 +180,7 @@ const __connected_ft = (function(){
 
 				serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
 					.then(function(subscription) {
+						appSubscription = subscription;
 						resolve(subscription);
 					})
 					.catch(function(err) {
@@ -273,7 +274,31 @@ const __connected_ft = (function(){
 
 	}
 
-	function populateDrawerWithDevices(){
+	function whoami(){
+
+		return fetch('/devices/whoami', {
+				credentials : 'include',
+				method : 'POST',
+				body : JSON.stringify({subscription : appSubscription}),
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			})
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(data => {
+				return data.deviceid;
+			})
+		;
+
+	}
+
+	function populateDrawerWithDevices(thisDeviceID){
 
 		return fetch('/devices/list', {
 				credentials : 'include'
@@ -316,7 +341,7 @@ const __connected_ft = (function(){
 
 					const spanA = document.createElement('a');
 
-					a.textContent = `${device.name} (${device.type})`;
+					a.textContent = `${device.name} ${device.deviceid === thisDeviceID ? '(this device)' : `(${device.type})`} `;
 					spanA.textContent = 'deregister';
 					spanA.dataset.visible = 'true';
 
@@ -367,18 +392,26 @@ const __connected_ft = (function(){
 
 	function prepareUI(){
 
-		return new Promise((resolve) => {
+		return new Promise( (resolve, reject) => {
 
-			populateDrawerWithDevices()
+			whoami()
+				.then(deviceid => {
+					setInterval(function(){
+						populateDrawerWithDevices(deviceid)
+					}.bind(this), 10000);
+					return populateDrawerWithDevices(deviceid);
+				})
 				.then(function(){
 					elements.menu.dataset.visible = 'true';
 					elements.subscribeForm.dataset.visible = false;
 					elements.stream.dataset.visible = true;
 					resolve();
 				})
+				.catch(err => {
+					console.log('Error preparing the UI', err);
+					reject(err);
+				})
 			;
-
-			setInterval(populateDrawerWithDevices, 10000);
 
 		});
 

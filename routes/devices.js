@@ -7,6 +7,36 @@ const convertSessionToUserID = require('../bin/lib/convert-session-to-userid');
 
 router.use(convertSessionToUserID);
 
+router.post('/whoami', (req, res) => {
+
+	const subscription = req.body.subscription;
+
+	if(!subscription){
+		res.status(422);
+		res.json({
+			status : 'err',
+			message : 'No subscription was passed'
+		});
+	} else {
+		devices.getBySubscription(subscription)
+			.then(device => {
+				res.json({
+					deviceid : device.deviceid
+				});
+			})
+			.catch(err => {
+				debug(err);
+				res.status(500);
+				res.json({
+					status : 'err',
+					message : 'An error occurred trying to figure out which device this is.'
+				});
+			})
+		;
+	}
+
+});
+
 router.get('/list', (req, res) => {
 
 	debug(res.locals.userid);
