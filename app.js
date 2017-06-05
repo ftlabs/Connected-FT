@@ -44,6 +44,7 @@ app.get('/isloggedin', require('./bin/lib/convert-session-to-userid'), (req, res
 });
 app.use('/notifications', require('./routes/notifications'));
 app.use('/devices', require('./routes/devices'));
+app.use('/timeline', require('./routes/timeline'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
