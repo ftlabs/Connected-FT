@@ -20,9 +20,19 @@ router.post('/whoami', (req, res) => {
 	} else {
 		devices.getBySubscription(subscription)
 			.then(device => {
-				res.json({
-					deviceid : device.deviceid
-				});
+				
+				if(device){
+					res.json({
+						deviceid : device.deviceid
+					});
+				} else {
+					res.status(404);
+					res.json({
+						status : "err",
+						message : "A device was not found for that subscription"
+					});
+				}
+
 			})
 			.catch(err => {
 				debug(err);
