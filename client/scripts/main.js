@@ -99,7 +99,7 @@ const __connected_ft = (function(){
 
 		const docFrag = document.createDocumentFragment();
 		
-		const uuid = data.url.replace('https://www.ft.com/content/', '');
+		const uuid = data.uuid;
 
 		const itemContainer = document.createElement('div');
 		const timeReceieved = document.createElement('span');
