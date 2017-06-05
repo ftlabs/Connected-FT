@@ -170,7 +170,7 @@ const __connected_ft = (function(){
 
 	}
 
-	function subscribe(name, type) {
+	function subscribe() {
 
 		return new Promise( (resolve, reject) => {
 			
@@ -178,38 +178,13 @@ const __connected_ft = (function(){
 
 				serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
 					.then(function(subscription) {
-						// The subscription was successful
-						appSubscription = subscription;
-						
-						prepareUI();
-						
-						console.log(subscription);
-						
-						registerDevice(subscription, name, type)
-							.then(function(response){
-								console.log('Subscription response', response);
-							})
-						;
-						
+						resolve(subscription);
 					})
-					.catch(function(e) {
+					.catch(function(err) {
 						if (Notification.permission === 'denied') {
-							// The user denied the notification permission which
-							// means we failed to subscribe and the user will need
-							// to manually change the notification permission to
-							// subscribe to push messages
-							console.log('Permission for Notifications was denied');
-							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-							overlay.show();
-							elements.subscribeForm.dataset.visible = true;
+							reject('denied');
 						} else {
-							// A problem occurred with the subscription, this can
-							// often be down to an issue or lack of the gcm_sender_id
-							// and / or gcm_user_visible_only
-							console.log('Unable to subscribe to push.', e);
-							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-							overlay.show();
-							elements.subscribeForm.dataset.visible = true;
+							reject(err);
 							
 						}
 					})
@@ -232,20 +207,17 @@ const __connected_ft = (function(){
 				function(pushSubscription) {
 					// We have a subcription, so call unsubscribe on it
 					pushSubscription.unsubscribe()
-					.then(function() {
-						console.log('Unsubscribed');
-						elements.subscribeForm.dataset.visible = 'true';
-						localStorage.clear();
-						window.location.reload();
-					})
-					.catch(function(e) {
-						console.log('Unsubscription error: ', e);
-					});
+						.then(function() {
+							console.log('Unsubscribed');
+							resolve();
+						})
+						.catch(function(e) {
+							console.log('Unsubscription error: ', e);
+							reject(e);
+						})
+					;
 				})
-				.catch(function(e) {
-					console.log('Error thrown while unsubscribing from ' +
-					'push messaging.', e);
-				});
+	
 			});
 
 		});
@@ -312,6 +284,7 @@ const __connected_ft = (function(){
 				}
 			})
 			.then(data => {
+
 				console.log(data);
 
 				const existingDevicesList = elements.drawer.querySelector('ol');
@@ -379,8 +352,88 @@ const __connected_ft = (function(){
 
 	function prepareUI(){
 
-		elements.subscribeForm.dataset.visible = false;
-		elements.stream.dataset.visible = true;
+		return new Promise((resolve) => {
+
+			populateDrawerWithDevices()
+				.then(function(){
+					elements.menu.dataset.visible = 'true';
+					elements.subscribeForm.dataset.visible = false;
+					elements.stream.dataset.visible = true;
+					resolve();
+				})
+			;
+
+			setInterval(populateDrawerWithDevices, 10000);
+
+		});
+
+	}
+
+	function bindEvents(){
+
+		elements.subscribeForm.addEventListener('submit', function(e){
+			e.preventDefault();
+
+			const deviceName = this.querySelector('input[name="devicename"]').value
+			const deviceType = this.querySelector('select[name="devicetype"]').value;
+	
+			subscribe()
+				.then(subscription => {
+					loading.show();
+					registerDevice(subscription, deviceName, deviceType)
+						.then(response => {
+							console.log('Subscription response', response);
+							prepareUI()
+								.then(function(){
+									elements.subscribeForm.dataset.visible = 'false';									
+									elements.stream.dataset.visible = 'true';
+									loading.hide();
+								})
+							;
+						})
+					;
+
+				})
+				.catch(err => {
+
+					if(err === 'denied'){
+						// The user denied the notification permission which
+						// means we failed to subscribe and the user will need
+						// to manually change the notification permission to
+						// subscribe to push messages
+						console.log('Permission for Notifications was denied');
+						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+						overlay.show();
+						elements.subscribeForm.dataset.visible = true;
+					} else {
+						// A problem occurred with the subscription, this can
+						// often be down to an issue or lack of the gcm_sender_id
+						// and / or gcm_user_visible_only
+						console.log('Unable to subscribe to push.', e);
+						overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred.', 'OK');
+						overlay.show();
+						elements.subscribeForm.dataset.visible = true;
+					}
+
+				})
+			;
+		}, false);
+
+		elements.secretUnsubscribe.addEventListener('click', function(){
+			unsubscribe()
+				.then(function(){
+					elements.subscribeForm.dataset.visible = 'true';
+					localStorage.clear();
+					window.location.reload();
+				})
+				.catch(err => {
+					console.log('Failure in unsubscribing device.', err);
+					overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
+					overlay.show();
+					elements.subscribeForm.dataset.visible = true;
+				})
+			;
+		}, false);
 
 		elements.menu.addEventListener('click', function(){
 
@@ -390,27 +443,6 @@ const __connected_ft = (function(){
 				elements.drawer.dataset.opened = 'false';
 			}
 
-		}, false);
-
-		populateDrawerWithDevices()
-			.then(function(){
-				elements.menu.dataset.visible = 'true';
-			})
-		;
-
-		setInterval(populateDrawerWithDevices, 10000);
-
-	}
-
-	function bindEvents(){
-
-		elements.subscribeForm.addEventListener('submit', function(e){
-			e.preventDefault();
-			subscribe(this.querySelector('input[name="devicename"]').value, this.querySelector('select[name="devicetype"]').value);
-		}, false);
-
-		elements.secretUnsubscribe.addEventListener('click', function(){
-			unsubscribe();
 		}, false);
 
 		navigator.serviceWorker.addEventListener('message', function(event){
@@ -471,7 +503,13 @@ const __connected_ft = (function(){
 								console.log("We're subscribed for push notifications");
 								appSubscription = pushSubscription;
 								
-								prepareUI();
+								prepareUI()
+									.then(function(){
+										elements.subscribeForm.dataset.visible = 'false';									
+										elements.stream.dataset.visible = 'true';
+										loading.hide();
+									})
+								;;
 
 								if(existingCards.length > 0){
 
