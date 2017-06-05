@@ -3,6 +3,7 @@ const __connected_ft = (function(){
 
 	'use strict';
 
+	let resetTaps = 0;
 	let appSubscription = undefined;
 
 	const existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
@@ -440,15 +441,28 @@ const __connected_ft = (function(){
 		}, false);
 
 		elements.secretUnsubscribe.addEventListener('click', function(){
-			unsubscribe()
-				.then(() => handleUnsubscribe())
-				.catch(err => {
-					console.log('Failure in unsubscribing device.', err);
-					overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
-					overlay.show();
-					elements.subscribeForm.dataset.visible = true;
-				})
-			;
+
+			if(resetTaps === 2){
+				unsubscribe()
+					.then(() => handleUnsubscribe())
+					.catch(err => {
+						console.log('Failure in unsubscribing device.', err);
+						overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
+						overlay.show();
+						elements.subscribeForm.dataset.visible = true;
+					})
+				;
+				resetTaps = 0;
+				this.textContent = '';
+			} else if(resetTaps === 1){
+
+				resetTaps += 1;
+				this.textContent = '1 more';
+			
+			} else {
+				resetTaps += 1;
+			}
+
 		}, false);
 
 		elements.visibleUnsubscribe.addEventListener('click', function(){
