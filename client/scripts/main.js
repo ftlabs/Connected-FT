@@ -17,7 +17,8 @@ const __connected_ft = (function(){
 		login : document.querySelector('.login'),
 		menu : document.querySelector('.component#menu'),
 		drawer : document.querySelector('.component#drawer'),
-		secretUnsubscribe : document.querySelector('#secretUnsub')
+		secretUnsubscribe : document.querySelector('#secretUnsub'),
+		visibleUnsubscribe : document.querySelector('#visibleUnsub')
 	};
 	
 	function zeroPad(n){
@@ -287,15 +288,25 @@ const __connected_ft = (function(){
 
 				console.log(data);
 
-				const existingDevicesList = elements.drawer.querySelector('ol');
+				const existingDevicesList = elements.drawer.querySelector('section.deviceslist');
 
 				if(existingDevicesList !== null){
 					existingDevicesList.parentNode.removeChild(existingDevicesList);
 				}
 
 				const drawerDevicesDocFrag = document.createDocumentFragment();
+				
+				const section = document.createElement('section');
+				const title = document.createElement('div');
 				const ol = document.createElement('ol');
+				
+				section.classList.add('deviceslist');
+				title.classList.add('title');
 
+				title.textContent = 'My Connected Devices';
+				
+				section.appendChild(title);	
+				
 				data.devices.forEach(device => {
 
 					const li = document.createElement('li');
@@ -333,9 +344,12 @@ const __connected_ft = (function(){
 
 				});
 
-				drawerDevicesDocFrag.appendChild(ol);
+				section.appendChild(ol);
+				drawerDevicesDocFrag.appendChild(section);
 
-				elements.drawer.appendChild(drawerDevicesDocFrag);
+				// elements.drawer.insertBefore(document.querySelector('.settings'), drawerDevicesDocFrag);
+
+				elements.drawer.insertBefore(drawerDevicesDocFrag, document.querySelector('.settings'));
 
 			})
 			.catch(err => {
@@ -367,6 +381,12 @@ const __connected_ft = (function(){
 
 		});
 
+	}
+
+	function handleUnsubscribe(){
+		elements.subscribeForm.dataset.visible = 'true';
+		localStorage.clear();
+		window.location.reload();
 	}
 
 	function bindEvents(){
@@ -421,11 +441,7 @@ const __connected_ft = (function(){
 
 		elements.secretUnsubscribe.addEventListener('click', function(){
 			unsubscribe()
-				.then(function(){
-					elements.subscribeForm.dataset.visible = 'true';
-					localStorage.clear();
-					window.location.reload();
-				})
+				.then(() => handleUnsubscribe())
 				.catch(err => {
 					console.log('Failure in unsubscribing device.', err);
 					overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
@@ -433,6 +449,20 @@ const __connected_ft = (function(){
 					elements.subscribeForm.dataset.visible = true;
 				})
 			;
+		}, false);
+
+		elements.visibleUnsubscribe.addEventListener('click', function(){
+
+			unsubscribe()
+				.then( () => handleUnsubscribe() )
+				.catch(err => {
+					console.log('Failure in unsubscribing device.', err);
+					overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
+					overlay.show();
+					elements.subscribeForm.dataset.visible = true;
+				})
+			;
+
 		}, false);
 
 		elements.menu.addEventListener('click', function(){
