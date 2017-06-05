@@ -1,14 +1,13 @@
-var __connected_ft = (function(){
+/*globals document navigator window localStorage Notification*/
+const __connected_ft = (function(){
 
 	'use strict';
 
-	var isPushEnabled = false;
+	let appSubscription = undefined;
 
-	var appSubscription = undefined;
+	const existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
 
-	var existingCards = JSON.parse( localStorage.getItem('cards') ) || [];
-
-	var elements = {
+	const elements = {
 		subscribeForm : document.querySelector('form#registerDevice'),
 		triggerBtn : document.querySelector('button.triggerBtn'),
 		stream : document.querySelector('.stream'),
@@ -31,9 +30,9 @@ var __connected_ft = (function(){
 
 	}
 
-	var overlay = (function(){
+	const overlay = (function(){
 
-		var overlayElement = elements.overlay;
+		const overlayElement = elements.overlay;
 
 		function setOverlayMessage(title, message, buttonText){
 			
@@ -69,19 +68,38 @@ var __connected_ft = (function(){
 
 	}());
 
+	const loading = (function(){
+
+		const spinningPanel = document.querySelector('#loading');
+
+		function makeItSpin(){
+			spinningPanel.dataset.visible = 'true';
+		}
+
+		function itSpinsTooMuchSTAHP(){
+			spinningPanel.dataset.visible = 'false';
+		}
+
+		return {
+			show : makeItSpin,
+			hide : itSpinsTooMuchSTAHP
+		}
+
+	}());
+
 	function createCard(data, animate){
 
 		if(animate === undefined || animate === null){
 			animate = true;
 		}
 
-		var time = new Date();
+		const time = new Date();
 
-		var docFrag = document.createDocumentFragment();
+		const docFrag = document.createDocumentFragment();
 		
-		var itemContainer = document.createElement('div');
-		var timeReceieved = document.createElement('span');
-		var contentContainer = document.createElement('div');
+		const itemContainer = document.createElement('div');
+		const timeReceieved = document.createElement('span');
+		const contentContainer = document.createElement('div');
 
 		itemContainer.classList.add('streamitem');
 		timeReceieved.classList.add('timeReceived');
@@ -94,10 +112,10 @@ var __connected_ft = (function(){
 		timeReceieved.textContent = zeroPad( time.getHours() ) + ":" + zeroPad( time.getMinutes() );
 		itemContainer.appendChild(timeReceieved);
 
-		var headline = document.createElement('strong');
-		var byline = document.createElement('span');
-		var image = document.createElement('img');
-		var link = document.createElement('a');
+		const headline = document.createElement('strong');
+		const byline = document.createElement('span');
+		const image = document.createElement('img');
+		const link = document.createElement('a');
 
 		headline.textContent = data.headline;
 		byline.textContent = data.byline;
@@ -154,47 +172,50 @@ var __connected_ft = (function(){
 
 	function subscribe(name, type) {
 
-		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
+		return new Promise( (resolve, reject) => {
+			
+			navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
-			serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
-				.then(function(subscription) {
-					// The subscription was successful
-					isPushEnabled = true;
-					appSubscription = subscription;
-					
-					prepareUI();
-					
-					console.log(subscription);
-					
-					registerDevice(subscription, name, type)
-						.then(function(response){
-							console.log('Subscription response', response);
-						})
-					;
-					
-				})
-				.catch(function(e) {
-					if (Notification.permission === 'denied') {
-						// The user denied the notification permission which
-						// means we failed to subscribe and the user will need
-						// to manually change the notification permission to
-						// subscribe to push messages
-						console.log('Permission for Notifications was denied');
-						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-						overlay.show();
-						elements.subscribeForm.dataset.visible = true;
-					} else {
-						// A problem occurred with the subscription, this can
-						// often be down to an issue or lack of the gcm_sender_id
-						// and / or gcm_user_visible_only
-						console.log('Unable to subscribe to push.', e);
-						overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
-						overlay.show();
-						elements.subscribeForm.dataset.visible = true;
+				serviceWorkerRegistration.pushManager.subscribe({userVisibleOnly: true})
+					.then(function(subscription) {
+						// The subscription was successful
+						appSubscription = subscription;
 						
-					}
-				})
-			;
+						prepareUI();
+						
+						console.log(subscription);
+						
+						registerDevice(subscription, name, type)
+							.then(function(response){
+								console.log('Subscription response', response);
+							})
+						;
+						
+					})
+					.catch(function(e) {
+						if (Notification.permission === 'denied') {
+							// The user denied the notification permission which
+							// means we failed to subscribe and the user will need
+							// to manually change the notification permission to
+							// subscribe to push messages
+							console.log('Permission for Notifications was denied');
+							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+							overlay.show();
+							elements.subscribeForm.dataset.visible = true;
+						} else {
+							// A problem occurred with the subscription, this can
+							// often be down to an issue or lack of the gcm_sender_id
+							// and / or gcm_user_visible_only
+							console.log('Unable to subscribe to push.', e);
+							overlay.set('Push notifications denied', 'For Connected FT to work, you must enable push notifications for this web page on this device', 'OK');
+							overlay.show();
+							elements.subscribeForm.dataset.visible = true;
+							
+						}
+					})
+				;
+
+			});
 
 		});
 
@@ -202,27 +223,31 @@ var __connected_ft = (function(){
 
 	function unsubscribe() {
 
-		navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
-			// To unsubscribe from push messaging, you need get the
-			// subcription object, which you can call unsubscribe() on.
-			serviceWorkerRegistration.pushManager.getSubscription().then(
-			function(pushSubscription) {
-				// We have a subcription, so call unsubscribe on it
-				pushSubscription.unsubscribe()
-				.then(function() {
-					console.log('Unsubscribed');
-					elements.subscribeForm.dataset.visible = 'true';
-					localStorage.clear();
-					window.location.reload();
+		return new Promise( (resolve, reject) => {
+
+			navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) {
+				// To unsubscribe from push messaging, you need get the
+				// subcription object, which you can call unsubscribe() on.
+				serviceWorkerRegistration.pushManager.getSubscription().then(
+				function(pushSubscription) {
+					// We have a subcription, so call unsubscribe on it
+					pushSubscription.unsubscribe()
+					.then(function() {
+						console.log('Unsubscribed');
+						elements.subscribeForm.dataset.visible = 'true';
+						localStorage.clear();
+						window.location.reload();
+					})
+					.catch(function(e) {
+						console.log('Unsubscription error: ', e);
+					});
 				})
 				.catch(function(e) {
-					console.log('Unsubscription error: ', e);
+					console.log('Error thrown while unsubscribing from ' +
+					'push messaging.', e);
 				});
-			})
-			.catch(function(e) {
-				console.log('Error thrown while unsubscribing from ' +
-				'push messaging.', e);
 			});
+
 		});
 	}
 
@@ -398,7 +423,7 @@ var __connected_ft = (function(){
 				url : 'https://www.ft.com/content/14b558da-284c-11e7-bc4b-5528796fe35c'
 			});*/
 
-			var data = JSON.parse(event.data);
+			const data = JSON.parse(event.data);
 
 			addCard(data);
 
@@ -406,11 +431,9 @@ var __connected_ft = (function(){
 
 	}
 
-	function initialise(){
+	function checkLoginStatus(){
 
-		bindEvents();
-
-		fetch('/isloggedin', {
+		return fetch('/isloggedin', {
 				credentials : 'include'
 			})
 			.then(function(res){
@@ -420,8 +443,19 @@ var __connected_ft = (function(){
 					return res.json();
 				}
 			})
+
+	}
+
+	function initialise(){
+
+		loading.show();
+
+		bindEvents();
+
+		checkLoginStatus()		
 			.then(function(){
 				elements.login.dataset.visible = "false";
+				loading.hide();
 				navigator.serviceWorker.ready.then(function(serviceWorkerRegistration) { 
 
 					serviceWorkerRegistration.pushManager.getSubscription()
@@ -431,12 +465,10 @@ var __connected_ft = (function(){
 
 							if(!pushSubscription){
 								console.log("We're not subscribed to push notifications");
-								isPushEnabled = false;
 								elements.subscribeForm.dataset.visible = 'true';
 								elements.stream.dataset.visible = 'false';
 							} else {
 								console.log("We're subscribed for push notifications");
-								isPushEnabled = true;
 								appSubscription = pushSubscription;
 								
 								prepareUI();
@@ -453,6 +485,8 @@ var __connected_ft = (function(){
 									});
 
 								}
+								
+							
 							}
 
 						})
@@ -466,10 +500,14 @@ var __connected_ft = (function(){
 				switch(err){
 					case 401:
 						elements.login.dataset.visible = 'true';
+						loading.hide();
+						break;
+					default:
+						console.log('UNKNOWN LOGIN ERROR', err);
+						break;
 				}
 			})
 		;
-
 
 	}
 
