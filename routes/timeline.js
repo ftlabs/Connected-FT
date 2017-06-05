@@ -16,11 +16,15 @@ router.get('/me', (req, res) => {
 			userTimeline = userTimeline
 				.map(item => filterObject(item, ['uuid', 'byline', 'headline', 'imagesrc', 'url', 'senttime']))
 				.sort( (a, b) => {
-					return a.sorttime > b.sorttime ? 1 : -1;
+					if(a.senttime >= b.senttime){
+						return -1;
+					} else {
+						return 1;
+					}
 				})
 			;
 			res.json({
-				item : userTimeline
+				items : userTimeline
 			});
 
 		})

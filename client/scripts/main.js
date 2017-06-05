@@ -95,7 +95,7 @@ const __connected_ft = (function(){
 			animate = true;
 		}
 
-		const time = new Date();
+		const time = data.senttime === undefined ? new Date() : new Date(data.senttime * 1000);
 
 		const docFrag = document.createDocumentFragment();
 		
@@ -242,25 +242,15 @@ const __connected_ft = (function(){
 		;
 	}
 
-	function addCard(data, animate, save){
+	function addCard(data, animate){
 
 		if(animate === undefined || animate === null){
 			animate = true;
 		}
 
-		if(save === undefined || save === null){
-			save = true;
-		}
-
 		var newCard = createCard(data, animate);
 
 		elements.stream.insertBefore(newCard, elements.stream.querySelectorAll('.streamitem')[0]);
-
-		existingCards.push(data);
-
-		if(save){
-			localStorage.setItem('cards', JSON.stringify(existingCards));
-		}
 		
 		elements.noitems.dataset.visible = 'false';
 
@@ -390,7 +380,7 @@ const __connected_ft = (function(){
 			})
 			.catch(err => {
 				console.log(err);
-				err.text()
+				err.json()
 					.then(t => {
 						console.log('Could not get a list of devices', t);
 					})
@@ -597,20 +587,24 @@ const __connected_ft = (function(){
 										loading.hide();
 									})
 								;
-
-								if(existingCards.length > 0){
-
-									elements.stream.innerHTML = '';
-									existingCards.forEach(function(card, idx){
-
-										if(idx < 10){
-											addCard(card, false, false);
+	
+								fetch('/timeline/me', { credentials : 'include' })
+									.then(res => {
+										if(res.ok){
+											return res.json();
+										} else {
+											throw res;
 										}
-
-									});
-
-								}
-								
+									})
+									.then(data => {
+										console.log(data);
+										elements.stream.innerHTML = '';
+										data.items.reverse().forEach(item => addCard(item, false, false));
+									})
+									.catch(err => {
+										console.log('An error occurred retrieving the users timeline', err);
+									})
+								;
 							
 							}
 
