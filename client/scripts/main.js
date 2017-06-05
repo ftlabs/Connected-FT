@@ -294,6 +294,13 @@ const __connected_ft = (function(){
 			.then(data => {
 				return data.deviceid;
 			})
+			.catch(err => {
+				if(err.status === 404){
+					unsubscribe().then(() => handleUnsubscribe());
+				} else {
+					throw err;
+				}
+			})
 		;
 
 	}
@@ -359,6 +366,9 @@ const __connected_ft = (function(){
 								console.log(result);
 								li.parentElement.removeChild(li);
 								elements.drawer.dataset.opened = 'false';
+								if(device.deviceid === thisDeviceID){
+									unsubscribe().then(() => handleUnsubscribe());
+								}
 							})
 						;
 					});
@@ -586,7 +596,7 @@ const __connected_ft = (function(){
 										elements.stream.dataset.visible = 'true';
 										loading.hide();
 									})
-								;;
+								;
 
 								if(existingCards.length > 0){
 
