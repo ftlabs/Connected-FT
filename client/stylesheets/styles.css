@@ -278,7 +278,13 @@ a.o-buttons {
   margin-bottom: 20px;
 }
 
-.stream .streamitem .content a{
+.stream .streamitem .content .linkContainer{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+.stream .streamitem .content .linkContainer a{
   font-size: 1.2em;
   text-decoration: none;
   text-align: center;
@@ -287,6 +293,10 @@ a.o-buttons {
   padding: 0.5em 1em;
   max-width: 300px;
   align-self: center;
+}
+
+.stream .streamitem .content .linkContainer a.listen{
+  background: #0F5499;
 }
 
 #overlay{

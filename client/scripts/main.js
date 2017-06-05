@@ -99,6 +99,8 @@ const __connected_ft = (function(){
 
 		const docFrag = document.createDocumentFragment();
 		
+		const uuid = data.url.replace('https://www.ft.com/content/', '');
+
 		const itemContainer = document.createElement('div');
 		const timeReceieved = document.createElement('span');
 		const contentContainer = document.createElement('div');
@@ -107,6 +109,8 @@ const __connected_ft = (function(){
 		timeReceieved.classList.add('timeReceived');
 		contentContainer.classList.add('content');
 
+		itemContainer.dataset.uuid = uuid;
+
 		if(animate){
 			itemContainer.dataset.collapsed = "true";
 		}
@@ -114,17 +118,28 @@ const __connected_ft = (function(){
 		timeReceieved.textContent = zeroPad( time.getHours() ) + ":" + zeroPad( time.getMinutes() );
 		itemContainer.appendChild(timeReceieved);
 
+		console.log(uuid);
+
 		const headline = document.createElement('strong');
 		const byline = document.createElement('span');
 		const image = document.createElement('img');
+		const linkContainer = document.createElement('div')
 		const link = document.createElement('a');
+		const audioLink = document.createElement('a');
 
 		headline.textContent = data.headline;
 		byline.textContent = data.byline;
 		image.src = data.imagesrc;
+
+		linkContainer.classList.add('linkContainer')
+
 		link.href = data.url;
 		link.target = '_blank';
 		link.textContent = 'Read now';
+
+		audioLink.classList.add('listen');
+		audioLink.dataset.visible = 'false';
+		audioLink.textContent = 'Listen now';
 
 		contentContainer.appendChild(headline);
 		contentContainer.appendChild(byline);
@@ -133,7 +148,9 @@ const __connected_ft = (function(){
 			contentContainer.appendChild(image);
 		}
 
-		contentContainer.appendChild(link);
+		linkContainer.appendChild(link);
+		linkContainer.appendChild(audioLink);
+		contentContainer.appendChild(linkContainer);
 		itemContainer.appendChild(contentContainer);
 
 		docFrag.appendChild(itemContainer);
@@ -417,6 +434,24 @@ const __connected_ft = (function(){
 
 	}
 
+	function checkForAudioVersion(uuid){
+		return fetch(`https://audio-available.ft.com/check/${uuid}`)
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+			.then(data => {
+				return data.haveFile;
+			})
+			.catch(err => {
+				console.log(`checkForAudioVersion failed for ${uuid}`, err);
+			})
+		;
+	}
+
 	function handleUnsubscribe(){
 		elements.subscribeForm.dataset.visible = 'true';
 		localStorage.clear();
@@ -600,6 +635,18 @@ const __connected_ft = (function(){
 										console.log(data);
 										elements.stream.innerHTML = '';
 										data.items.reverse().forEach(item => addCard(item, false, false));
+										Array.from(document.querySelectorAll('.streamitem')).forEach(card => {
+											checkForAudioVersion(card.dataset.uuid)
+												.then(hasFile => {
+													if(hasFile){
+														const listenBtn = card.querySelector('.listen');
+														listenBtn.href = `https://listen.ft.com/?play=${card.dataset.uuid}`;
+														listenBtn.dataset.visible = 'true';
+													}
+												})
+											;
+											console.log(card);
+										});
 									})
 									.catch(err => {
 										console.log('An error occurred retrieving the users timeline', err);
