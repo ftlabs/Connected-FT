@@ -3,6 +3,7 @@ const express = require('express');
 const router = express.Router();
 
 const filterObject = require('../bin/lib/filter-object');
+const extractUUID = require('../bin/lib/extract-uuid');
 const timeline = require('../bin/lib/timeline');
 const convertSessionToUserID = require('../bin/lib/convert-session-to-userid');
 
@@ -14,7 +15,11 @@ router.get('/me', (req, res) => {
 		.then(userTimeline => {
 
 			userTimeline = userTimeline
-				.map(item => filterObject(item, ['uuid', 'byline', 'headline', 'imagesrc', 'url', 'senttime']))
+				.map(item => {
+					item = filterObject(item, ['uuid', 'byline', 'headline', 'imagesrc', 'url', 'senttime']);
+					item.uuid = extractUUID(item.url);
+					return item;
+				})
 				.sort( (a, b) => {
 					if(a.senttime >= b.senttime){
 						return -1;
