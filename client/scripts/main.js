@@ -394,11 +394,6 @@ const __connected_ft = (function(){
 			})
 			.catch(err => {
 				console.log(err);
-				err.json()
-					.then(t => {
-						console.log('Could not get a list of devices', t);
-					})
-				;
 			})
 		;
 
