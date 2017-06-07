@@ -172,6 +172,8 @@ a.o-buttons {
 
 .component#drawer ol li a{
   color: #333;
+  display: block;
+  width: 100%;
 }
 
 .component#drawer ol li span{

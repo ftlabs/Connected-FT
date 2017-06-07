@@ -504,6 +504,8 @@ const __connected_ft = (function(){
 		elements.secretUnsubscribe.addEventListener('click', function(){
 
 			if(resetTaps === 2){
+				
+				loading.show();
 				whoami()
 					.then(uuid => deleteDevice(uuid))
 					.then(function(){
@@ -535,7 +537,8 @@ const __connected_ft = (function(){
 		}, false);
 
 		elements.visibleUnsubscribe.addEventListener('click', function(){
-
+			
+			loading.show();
 			whoami()
 				.then(uuid => deleteDevice(uuid))
 				.then(function(){
