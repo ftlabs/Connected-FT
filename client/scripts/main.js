@@ -394,11 +394,6 @@ const __connected_ft = (function(){
 			})
 			.catch(err => {
 				console.log(err);
-				err.json()
-					.then(t => {
-						console.log('Could not get a list of devices', t);
-					})
-				;
 			})
 		;
 
@@ -509,17 +504,27 @@ const __connected_ft = (function(){
 		elements.secretUnsubscribe.addEventListener('click', function(){
 
 			if(resetTaps === 2){
-				unsubscribe()
-					.then(() => handleUnsubscribe())
-					.catch(err => {
-						console.log('Failure in unsubscribing device.', err);
-						overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
-						overlay.show();
-						elements.subscribeForm.dataset.visible = true;
+				
+				loading.show();
+				whoami()
+					.then(uuid => deleteDevice(uuid))
+					.then(function(){
+
+						unsubscribe()
+							.then(() => handleUnsubscribe())
+							.catch(err => {
+								console.log('Failure in unsubscribing device.', err);
+								overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
+								overlay.show();
+								elements.subscribeForm.dataset.visible = true;
+							})
+						;
+						resetTaps = 0;
+						this.textContent = '';
+					
 					})
 				;
-				resetTaps = 0;
-				this.textContent = '';
+
 			} else if(resetTaps === 1){
 
 				resetTaps += 1;
@@ -532,14 +537,20 @@ const __connected_ft = (function(){
 		}, false);
 
 		elements.visibleUnsubscribe.addEventListener('click', function(){
-
-			unsubscribe()
-				.then( () => handleUnsubscribe() )
-				.catch(err => {
-					console.log('Failure in unsubscribing device.', err);
-					overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
-					overlay.show();
-					elements.subscribeForm.dataset.visible = true;
+			
+			loading.show();
+			whoami()
+				.then(uuid => deleteDevice(uuid))
+				.then(function(){
+					unsubscribe()
+						.then( () => handleUnsubscribe() )
+						.catch(err => {
+							console.log('Failure in unsubscribing device.', err);
+							overlay.set('Push notifications error', 'Sorry, but an unknown error has occurred while we tried to unsubscribe this device.', 'OK');
+							overlay.show();
+							elements.subscribeForm.dataset.visible = true;
+						})
+					;
 				})
 			;
 
