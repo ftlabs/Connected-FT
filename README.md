@@ -40,9 +40,10 @@ So far, push notifications have been observed to work on the following browsers/
 
 ## API
 
-There are two routes that ft.com services can interact with:
+There are three routes that ft.com services can interact with:
 1. `/devices`
-2. `/notifications`
+2. `/timeline`
+3. `/notifications`
 
 The "Connected FT" progressive web app interacts with these endpoints, and is served from `/`. The code resides in the `client` folder, but is compiled, copied, and served from the `public` folder when the server is started.
 
@@ -112,6 +113,41 @@ This interface is intended for use by other FT.com products which may want to tr
 		},
 	]
 }
+```
+
+### /timeline
+
+Returns a list of items sent to the users devices. This request needs to include the FTSession cookie in the request in order to be valid.
+
+#### [ GET ] /me
+
+```JSON
+// Example:
+// https://ftlabs-connected.ft.com/devices/list
+
+// Response
+{
+	"items": [
+		{
+			"byline": "PM seeks to quell criticism over security as confident Tories target Labour heartlands",
+			"imagesrc": "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fcom.ft.imagepublish.prod-us.s3.amazonaws.com%2F49465b48-4adf-11e7-a3f4-c742b9791d43?source=next&fit=scale-down&width=700",
+			"headline": "Theresa May ramps up anti-terror rhetoric in final election push",
+			"uuid": "9963e04f-d658-4ebf-96a1-8575079f4b31",
+			"senttime": 1496832977,
+			"url": "https://ft.com/content/e2089f40-4abb-11e7-a3f4-c742b9791d43"
+		},
+		{
+			"byline": "PM seeks to quell criticism over security as confident Tories target Labour heartlands",
+			"imagesrc": "https://www.ft.com/__origami/service/image/v2/images/raw/http%3A%2F%2Fcom.ft.imagepublish.prod-us.s3.amazonaws.com%2F49465b48-4adf-11e7-a3f4-c742b9791d43?source=next&fit=scale-down&width=700",
+			"headline": "Theresa May ramps up anti-terror rhetoric in final election push",
+			"uuid": "9963e04f-d658-4ebf-96a1-8575079f4b31",
+			"senttime": 1496832977,
+			"url": "https://ft.com/content/e2089f40-4abb-11e7-a3f4-c742b9791d43"
+		}
+	]
+}
+
+
 ```
 
 ### /notifications
