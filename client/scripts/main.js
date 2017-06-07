@@ -295,6 +295,20 @@ const __connected_ft = (function(){
 
 	}
 
+	function getTimelineHistory(){
+
+		return fetch('/timeline/me', { credentials : 'include' })
+			.then(res => {
+				if(res.ok){
+					return res.json();
+				} else {
+					throw res;
+				}
+			})
+		;
+
+	}
+
 	function populateDrawerWithDevices(thisDeviceID){
 
 		return fetch('/devices/list', {
@@ -404,7 +418,7 @@ const __connected_ft = (function(){
 				.then(function(){
 					elements.menu.dataset.visible = 'true';
 					elements.subscribeForm.dataset.visible = false;
-					elements.stream.dataset.visible = true;
+					// elements.stream.dataset.visible = true;
 					resolve();
 				})
 				.catch(err => {
@@ -414,6 +428,16 @@ const __connected_ft = (function(){
 			;
 
 		});
+
+	}
+
+	function fillStreamWithItems(timelineItems){
+
+		console.log(timelineItems);
+		elements.stream.innerHTML = '';
+		timelineItems.items.reverse().forEach(item => addCard(item, false, false));
+		elements.stream.dataset.visible = 'true';
+		loading.hide();
 
 	}
 
@@ -439,9 +463,18 @@ const __connected_ft = (function(){
 							console.log('Subscription response', response);
 							prepareUI()
 								.then(function(){
+									
 									elements.subscribeForm.dataset.visible = 'false';									
 									elements.stream.dataset.visible = 'true';
 									loading.hide();
+
+									getTimelineHistory()
+										.then(data => fillStreamWithItems(data))
+										.catch(err => {
+											console.log('An error occurred retrieving the users timeline', err);
+										})
+									;
+
 								})
 							;
 						})
@@ -577,34 +610,26 @@ const __connected_ft = (function(){
 								elements.subscribeForm.dataset.visible = 'true';
 								elements.stream.dataset.visible = 'false';
 							} else {
+								
 								console.log("We're subscribed for push notifications");
 								appSubscription = pushSubscription;
+								
+								loading.show();
 								
 								prepareUI()
 									.then(function(){
 										elements.subscribeForm.dataset.visible = 'false';									
-										elements.stream.dataset.visible = 'true';
-										loading.hide();
+
+										getTimelineHistory()
+											.then(data => fillStreamWithItems(data))
+											.catch(err => {
+												console.log('An error occurred retrieving the users timeline', err);
+											})
+										;
+
 									})
 								;
 	
-								fetch('/timeline/me', { credentials : 'include' })
-									.then(res => {
-										if(res.ok){
-											return res.json();
-										} else {
-											throw res;
-										}
-									})
-									.then(data => {
-										console.log(data);
-										elements.stream.innerHTML = '';
-										data.items.reverse().forEach(item => addCard(item, false, false));
-									})
-									.catch(err => {
-										console.log('An error occurred retrieving the users timeline', err);
-									})
-								;
 							
 							}
 
