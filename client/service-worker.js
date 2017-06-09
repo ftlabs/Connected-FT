@@ -34,14 +34,16 @@ self.addEventListener('push', function(event) {
   var body = data.headline;
   var icon = '/images/ftlogo.png';
   var tag = data.url;
+  var badge = '/images/badge.png';
 
   console.log(event.data.json())
 
   event.waitUntil(
     self.registration.showNotification(title, {
-      body: body,
-      icon: icon,
-	  tag : tag || undefined
+      body : body,
+      icon : icon,
+	  tag : tag || undefined,
+      badge : badge
     })
   );
 
